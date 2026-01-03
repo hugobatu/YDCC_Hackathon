@@ -84,7 +84,7 @@ def run_test(scenario_name, species="tom"):
     history_data = generate_history(scenario_name, "2024-01-15 08:00:00")
     
     # Hiển thị 3 dòng cuối
-    print("📉 Input Data (Last 3 points):")
+    print("Input Data (Last 3 points):")
     for item in history_data[-3:]:
         print(f"  - Time: {item['timestamp']} | DO: {item['dissolved_oxygen']} | pH: {item['ph']} | NH3: {item['ammonia']}")
 
@@ -101,7 +101,7 @@ def run_test(scenario_name, species="tom"):
             result = response.json()
             
             # In kết quả
-            print("\n🤖 PREDICTION RESULT:")
+            print("\nPREDICTION RESULT:")
             print(f"  - Predicted (5min): {result['prediction_next_5min']}")
             print(f"  - Risk Level:       [{result['risk_level']}]")
             
@@ -119,12 +119,12 @@ def run_test(scenario_name, species="tom"):
             expected_status = expected_map[scenario_name]
             is_pass = result['risk_level'] == expected_status
             
-            print(f"  - TEST PASSED:      {'✅ YES' if is_pass else '❌ NO (Expected: ' + expected_status + ')'}")
+            print(f"  - TEST PASSED:      {'YES' if is_pass else 'NO (Expected: ' + expected_status + ')'}")
         else:
-            print(f"❌ HTTP Error {response.status_code}: {response.text}")
+            print(f"HTTP Error {response.status_code}: {response.text}")
             
     except Exception as e:
-        print(f"❌ Connection Error: {e}")
+        print(f"Connection Error: {e}")
         print("   (Make sure uvicorn server is running)")
 
 if __name__ == "__main__":

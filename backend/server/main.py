@@ -10,19 +10,17 @@ from risk_classifier import risk_engine
 
 app = FastAPI(title="Aqua Sentinel AI - Multi Species")
 
-# ... (Phần Load Models giữ nguyên không đổi) ...
 MODEL_DIR = "models"
 models = {}
 targets = ["dissolved_oxygen", "ph", "ammonia", "turbidity"]
 feature_cols = []
-# (Code load model như cũ...)
 try:
     if os.path.exists(MODEL_DIR):
         for t in targets:
             models[t] = joblib.load(f"{MODEL_DIR}/xgb_{t}.pkl")
         feature_cols = joblib.load(f"{MODEL_DIR}/features.pkl")
     else:
-        print("⚠️ Model folder not found")
+        print("Model folder not found")
 except Exception as e:
     print(f"Error: {e}")
 
@@ -39,7 +37,6 @@ class SensorPoint(BaseModel):
     feeding_event: int
 
 class PredictRequest(BaseModel):
-    # Thêm trường species, mặc định là tôm nếu không gửi
     species: str = "tom" 
     history: List[SensorPoint]
 
@@ -49,7 +46,7 @@ def predict(req: PredictRequest):
     if len(req.history) < 12:
         raise HTTPException(400, "Cần tối thiểu 12 điểm dữ liệu lịch sử")
         
-    # 2. Convert to DataFrame & Feature Engineering (Giữ nguyên)
+    # 2. Convert to DataFrame & Feature Engineering
     data = [item.dict() for item in req.history]
     df = pd.DataFrame(data)
     df['timestamp'] = pd.to_datetime(df['timestamp'])
@@ -67,7 +64,7 @@ def predict(req: PredictRequest):
     latest = df.iloc[[-1]].copy().fillna(0)
     current_do = latest["dissolved_oxygen"].values[0]
     
-    # 3. Model Prediction Loop (Giữ nguyên)
+    # 3. Model Prediction Loop
     result = {}
     for name in targets:
         if name not in models: continue
@@ -89,8 +86,7 @@ def predict(req: PredictRequest):
         # Safety clamp for negative values
         if result[name] < 0: result[name] = 0.0
 
-    # 4. === RISK ASSESSMENT (PHẦN QUAN TRỌNG) ===
-    # Truyền loài (species) vào hàm đánh giá
+    # 4. === RISK ASSESSMENT ===
     risk_assessment = risk_engine.assess_risk(
         prediction=result, 
         current_do=current_do, 
@@ -101,6 +97,6 @@ def predict(req: PredictRequest):
         "species": req.species,
         "prediction_next_5min": result,
         "risk_level": risk_assessment["level"],
-        "details": risk_assessment["reasons"], # Trả về lý do tại sao Danger/Warning
-        "thresholds": risk_assessment["thresholds_used"] # Trả về ngưỡng để check
+        "details": risk_assessment["reasons"], # lý do tại sao Danger/Warning
+        "thresholds": risk_assessment["thresholds_used"] # ngưỡng để check
     }
