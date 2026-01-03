@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List
 import pandas as pd
 import joblib
-import numpy as np
+from risk_classifier import risk_engine
 
 app = FastAPI()
 
@@ -16,7 +16,7 @@ try:
         models[t] = joblib.load(f"{MODEL_DIR}/xgb_{t}.pkl")
     feature_cols = joblib.load(f"{MODEL_DIR}/features.pkl")
 except:
-    print("⚠️ Model chưa train hoặc sai đường dẫn")
+    print("Model chưa train hoặc sai path")
 
 class SensorPoint(BaseModel):
     timestamp: str
@@ -41,9 +41,10 @@ def predict(req: PredictRequest):
     df = pd.DataFrame(data)
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     
-    # 2. Feature Engineering (Y hệt lúc train)
+    # 2. Feature Engineering (giống lúc train)
     cols = ["dissolved_oxygen", "ph", "ammonia", "turbidity"]
     windows = [3, 12]
+
     for col in cols:
         for w in windows:
             df[f"{col}_roll_mean_{w}"] = df[col].rolling(window=w).mean()
@@ -79,33 +80,7 @@ def predict(req: PredictRequest):
         result[name] = round(pred, 2)
 
     # 4. Risk Assessment
-    risk_score = 0
-    # --- Dissolved Oxygen (DO) ---
-    if result["dissolved_oxygen"] < 3.5: 
-        risk_score += 5 # Nguy hiểm chết người
-    elif result["dissolved_oxygen"] < 5.0: 
-        risk_score += 2 # Cảnh báo (Warning) -> SỬA Ở ĐÂY (4.16 sẽ lọt vào đây)
-        
-    # --- pH ---
-    if result["ph"] < 6.0 or result["ph"] > 8.5: 
-        risk_score += 3
-    elif result["ph"] < 6.8 or result["ph"] > 8.2:
-        risk_score += 1 # Cảnh báo nhẹ
-        
-    # --- Ammonia ---
-    if result["ammonia"] > 1.0: 
-        risk_score += 5
-    elif result["ammonia"] > 0.5: 
-        risk_score += 3
-    elif result["ammonia"] > 0.2:
-        risk_score += 1 # Cảnh báo nhẹ (0.25 sẽ lọt vào đây)
-
-    # --- Safety Net (Input hiện tại) ---
-    if current_do < 3.5: risk_score = max(risk_score, 5) # Ghi đè
-    
-    status = "SAFE"
-    if risk_score >= 5: status = "DANGER_ACTION_NEEDED"
-    elif risk_score >= 2: status = "WARNING" # Score = 2 sẽ ra Warning
+    status = risk_engine.assess_risk(result, current_do)
     
     return {
         "prediction_next_5min": result,
