@@ -1,23 +1,33 @@
+# main.py
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional # Thêm Optional
 import pandas as pd
 import joblib
+import numpy as np
+import os
 from risk_classifier import risk_engine
 
-app = FastAPI()
+app = FastAPI(title="Aqua Sentinel AI - Multi Species")
 
-# LOAD MODELS
+# ... (Phần Load Models giữ nguyên không đổi) ...
 MODEL_DIR = "models"
 models = {}
 targets = ["dissolved_oxygen", "ph", "ammonia", "turbidity"]
+feature_cols = []
+# (Code load model như cũ...)
 try:
-    for t in targets:
-        models[t] = joblib.load(f"{MODEL_DIR}/xgb_{t}.pkl")
-    feature_cols = joblib.load(f"{MODEL_DIR}/features.pkl")
-except:
-    print("Model chưa train hoặc sai path")
+    if os.path.exists(MODEL_DIR):
+        for t in targets:
+            models[t] = joblib.load(f"{MODEL_DIR}/xgb_{t}.pkl")
+        feature_cols = joblib.load(f"{MODEL_DIR}/features.pkl")
+    else:
+        print("⚠️ Model folder not found")
+except Exception as e:
+    print(f"Error: {e}")
 
+
+# === CẬP NHẬT SCHEMA ===
 class SensorPoint(BaseModel):
     timestamp: str
     temperature: float
@@ -29,22 +39,23 @@ class SensorPoint(BaseModel):
     feeding_event: int
 
 class PredictRequest(BaseModel):
+    # Thêm trường species, mặc định là tôm nếu không gửi
+    species: str = "tom" 
     history: List[SensorPoint]
 
 @app.post("/predict")
 def predict(req: PredictRequest):
-    # 1. Prepare Data
+    # 1. Validate History length
     if len(req.history) < 12:
-        raise HTTPException(400, "Cần tối thiểu 12 điểm dữ liệu lịch sử (60 phút)")
+        raise HTTPException(400, "Cần tối thiểu 12 điểm dữ liệu lịch sử")
         
+    # 2. Convert to DataFrame & Feature Engineering (Giữ nguyên)
     data = [item.dict() for item in req.history]
     df = pd.DataFrame(data)
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     
-    # 2. Feature Engineering (giống lúc train)
     cols = ["dissolved_oxygen", "ph", "ammonia", "turbidity"]
     windows = [3, 12]
-
     for col in cols:
         for w in windows:
             df[f"{col}_roll_mean_{w}"] = df[col].rolling(window=w).mean()
@@ -53,36 +64,43 @@ def predict(req: PredictRequest):
     df["hour"] = df["timestamp"].dt.hour
     df["month"] = df["timestamp"].dt.month
     
-    # Lấy dòng cuối cùng để predict
-    latest = df.iloc[[-1]].copy().fillna(0) # Fillna an toàn
-    
-    # 3. Predict & Safety Check
-    result = {}
-    
-    # === HYBRID SAFETY NET ===
-    # Nếu chỉ số hiện tại ĐANG RẤT XẤU, đừng tin AI hoàn toàn nếu AI báo tốt
+    latest = df.iloc[[-1]].copy().fillna(0)
     current_do = latest["dissolved_oxygen"].values[0]
     
+    # 3. Model Prediction Loop (Giữ nguyên)
+    result = {}
     for name in targets:
-        # Predict AI
+        if name not in models: continue
+        
+        # Ensure features exist
         for col in feature_cols:
             if col not in latest.columns: latest[col] = 0
+            
+        pred_val = float(models[name].predict(latest[feature_cols])[0])
         
-        pred = float(models[name].predict(latest[feature_cols])[0])
-        
-        # Post-processing Logic (Hackathon Tip)
+        # Physical Constraint for DO
         if name == "dissolved_oxygen":
-            # Nếu hiện tại đang 3.0, trend đang giảm (-0.1), AI không được phép đoán > 3.0
-            delta_3 = latest["dissolved_oxygen_delta_3"].values[0]
-            if delta_3 < 0: 
-                pred = min(pred, current_do) # Ép phải giảm hoặc bằng
-        
-        result[name] = round(pred, 2)
+            delta_3 = latest.get("dissolved_oxygen_delta_3", 0).values[0]
+            if delta_3 < -0.1:
+                pred_val = min(pred_val, current_do)
 
-    # 4. Risk Assessment
-    status = risk_engine.assess_risk(result, current_do)
-    
+        result[name] = round(pred_val, 2)
+        
+        # Safety clamp for negative values
+        if result[name] < 0: result[name] = 0.0
+
+    # 4. === RISK ASSESSMENT (PHẦN QUAN TRỌNG) ===
+    # Truyền loài (species) vào hàm đánh giá
+    risk_assessment = risk_engine.assess_risk(
+        prediction=result, 
+        current_do=current_do, 
+        species=req.species
+    )
+
     return {
+        "species": req.species,
         "prediction_next_5min": result,
-        "risk_level": status
+        "risk_level": risk_assessment["level"],
+        "details": risk_assessment["reasons"], # Trả về lý do tại sao Danger/Warning
+        "thresholds": risk_assessment["thresholds_used"] # Trả về ngưỡng để check
     }
