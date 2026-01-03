@@ -1,7 +1,6 @@
 import requests
 import pandas as pd
 import numpy as np
-import json
 from datetime import datetime, timedelta
 
 # =========================
@@ -86,7 +85,7 @@ def run_test(scenario_name, species="tom"):
     # Hiển thị 3 dòng cuối
     print("Input Data (Last 3 points):")
     for item in history_data[-3:]:
-        print(f"  - Time: {item['timestamp']} | DO: {item['dissolved_oxygen']} | pH: {item['ph']} | NH3: {item['ammonia']}")
+        print(f"  - Time: {item['timestamp']} | DO: {item['dissolved_oxygen']} | pH: {item['ph']} | NH3: {item['ammonia']} | Temp: {item['temperature']})")
 
     # 2. Gửi request (Thêm field species)
     payload = {

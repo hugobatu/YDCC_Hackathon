@@ -1,31 +1,42 @@
 # main.py
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional # Thêm Optional
+from typing import List, Optional
 import pandas as pd
 import joblib
-import numpy as np
 import os
-from risk_classifier import risk_engine
+
+# 1. SỬA IMPORT CHO ĐÚNG TÊN FILE
+from risk_classifier import risk_engine 
 
 app = FastAPI(title="Aqua Sentinel AI - Multi Species")
 
-MODEL_DIR = "models"
+# 2. CẤU HÌNH LOAD MODEL
+MODEL_DIR = "models" 
+
 models = {}
-targets = ["dissolved_oxygen", "ph", "ammonia", "turbidity"]
+# 3. THÊM TEMPERATURE VÀO TARGET ĐỂ DỰ BÁO
+targets = ["dissolved_oxygen", "ph", "ammonia", "turbidity", "temperature"]
 feature_cols = []
+
 try:
     if os.path.exists(MODEL_DIR):
         for t in targets:
-            models[t] = joblib.load(f"{MODEL_DIR}/xgb_{t}.pkl")
+            # Load model nếu file tồn tại (tránh lỗi nếu chưa train model nhiệt độ)
+            model_path = f"{MODEL_DIR}/xgb_{t}.pkl"
+            if os.path.exists(model_path):
+                models[t] = joblib.load(model_path)
+            else:
+                print(f"⚠️ Warning: Model for {t} not found at {model_path}")
+                
         feature_cols = joblib.load(f"{MODEL_DIR}/features.pkl")
+        print("Models & Features loaded successfully.")
     else:
-        print("Model folder not found")
+        print(f"Error: Model folder '{MODEL_DIR}' not found")
 except Exception as e:
-    print(f"Error: {e}")
+    print(f"Error loading models: {e}")
 
-
-# === CẬP NHẬT SCHEMA ===
+# === SCHEMA ===
 class SensorPoint(BaseModel):
     timestamp: str
     temperature: float
@@ -51,12 +62,17 @@ def predict(req: PredictRequest):
     df = pd.DataFrame(data)
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     
-    cols = ["dissolved_oxygen", "ph", "ammonia", "turbidity"]
+    # 4. THÊM TEMPERATURE VÀO ĐÂY ĐỂ TÍNH ROLLING FEATURES
+    # Nếu không thêm, model sẽ không hiểu xu hướng nhiệt độ
+    cols = ["dissolved_oxygen", "ph", "ammonia", "turbidity", "temperature"]
     windows = [3, 12]
+    
     for col in cols:
         for w in windows:
-            df[f"{col}_roll_mean_{w}"] = df[col].rolling(window=w).mean()
-            df[f"{col}_delta_{w}"] = df[col] - df[col].shift(w)
+            # Kiểm tra cột có tồn tại không trước khi tính (Safety)
+            if col in df.columns:
+                df[f"{col}_roll_mean_{w}"] = df[col].rolling(window=w).mean()
+                df[f"{col}_delta_{w}"] = df[col] - df[col].shift(w)
             
     df["hour"] = df["timestamp"].dt.hour
     df["month"] = df["timestamp"].dt.month
@@ -69,13 +85,13 @@ def predict(req: PredictRequest):
     for name in targets:
         if name not in models: continue
         
-        # Ensure features exist
+        # Ensure features exist (Điền 0 nếu thiếu để tránh crash)
         for col in feature_cols:
             if col not in latest.columns: latest[col] = 0
             
         pred_val = float(models[name].predict(latest[feature_cols])[0])
         
-        # Physical Constraint for DO
+        # Physical Constraint for DO (Ràng buộc vật lý)
         if name == "dissolved_oxygen":
             delta_3 = latest.get("dissolved_oxygen_delta_3", 0).values[0]
             if delta_3 < -0.1:
@@ -83,13 +99,23 @@ def predict(req: PredictRequest):
 
         result[name] = round(pred_val, 2)
         
-        # Safety clamp for negative values
+        # Safety clamp
         if result[name] < 0: result[name] = 0.0
 
     # 4. === RISK ASSESSMENT ===
+    # Lấy trạng thái hiện tại đầy đủ
+    current_state = {
+        "dissolved_oxygen": latest["dissolved_oxygen"].values[0],
+        # Lấy nhiệt độ hiện tại (quan trọng để tính delta shock nhiệt)
+        "temperature": latest.get("temperature", pd.Series([28.0])).values[0], 
+        "ph": latest["ph"].values[0],
+        "ammonia": latest["ammonia"].values[0]
+    }
+
+    # Gọi Risk Engine
     risk_assessment = risk_engine.assess_risk(
         prediction=result, 
-        current_do=current_do, 
+        current_state=current_state, 
         species=req.species
     )
 
@@ -97,6 +123,6 @@ def predict(req: PredictRequest):
         "species": req.species,
         "prediction_next_5min": result,
         "risk_level": risk_assessment["level"],
-        "details": risk_assessment["reasons"], # lý do tại sao Danger/Warning
-        "thresholds": risk_assessment["thresholds_used"] # ngưỡng để check
+        "details": risk_assessment["reasons"], 
+        "thresholds": risk_assessment["thresholds_used"]
     }

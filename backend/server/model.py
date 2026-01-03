@@ -10,11 +10,11 @@ MODEL_DIR = "models"
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 # LOAD
-print("🔄 Loading data...")
+print("Loading data...")
 df = pd.read_csv(DATA_PATH)
 df["timestamp"] = pd.to_datetime(df["timestamp"])
 
-target_cols = ["dissolved_oxygen", "ph", "ammonia", "turbidity"]
+target_cols = ["dissolved_oxygen", "ph", "ammonia", "turbidity", "temperature"]
 
 # FEATURE ENGINEERING (SERVER & TRAIN PHẢI GIỐNG NHAU 100%)
 # Shift target (-1 step = 5 mins prediction)
