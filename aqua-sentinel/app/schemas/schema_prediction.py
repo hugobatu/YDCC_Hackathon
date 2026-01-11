@@ -16,8 +16,8 @@ class PredictRequest(BaseModel):
     history: List[SensorPoint]
 
 class PredictResponse(BaseModel):
-    current_values: Dict[str, float]
     species: str
+    current_values: Dict[str, float]
     prediction_next_5min: Dict[str, float]
     risk_level: str
     details: List[str]

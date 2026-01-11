@@ -37,10 +37,10 @@ async def predict_water(
     risk = risk_engine.assess_risk(preds, current_state, req.species)
     
     return {
+        "species": req.species,
         "current_values": {
             k: current_state[k] for k in preds.keys() if k in current_state
         },
-        "species": req.species,
         "prediction_next_5min": preds,
         "risk_level": risk["level"],
         "details": risk["reasons"],
