@@ -1,0 +1,22 @@
+<div class="image-slider">
+  <div
+    class="slides"
+    [style.transform]="'translateX(-' + currentIndex * 100 + '%)'"
+  >
+    <div
+      class="slide"
+      *ngFor="let slide of slides"
+      [style.backgroundImage]="'url(' + slide.image + ')'"
+    >
+      <div class="overlay"></div>
+
+      <div class="content">
+        <h2>{{ slide.title }}</h2>
+        <p>{{ slide.subtitle }}</p>
+      </div>
+    </div>
+  </div>
+
+  <button class="nav prev" (click)="prev()">‹</button>
+  <button class="nav next" (click)="next()">›</button>
+</div>
