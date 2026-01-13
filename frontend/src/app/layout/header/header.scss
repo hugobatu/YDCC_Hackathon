@@ -1,0 +1,106 @@
+@use '../../../styles/variables' as v;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 0 0 30px 30px;
+}
+
+.header-container {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo */
+.logo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+
+  .logo-highlight {
+    color: v.$color-primary;
+  }
+}
+
+/* Navigation */
+.nav {
+  display: flex;
+  gap: 2rem;
+
+  .nav-link {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #334155;
+    text-decoration: none;
+    position: relative;
+
+    &:hover {
+      color: v.$color-primary;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      width: 0;
+      height: 2px;
+      background: v.$color-primary;
+      transition: width 0.2s ease;
+    }
+
+    &:hover::after {
+      width: 100%;
+    }
+  }
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.45rem 1.1rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #334155;
+
+  &:hover {
+    color: v.$color-primary;
+  }
+}
+
+.btn-primary {
+  background: v.$color-primary;
+  color: white;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav {
+    display: none; // sau này làm hamburger menu
+  }
+}

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ImageSlider } from './image-slider';
+import { Footer } from './footer';
 
-describe('ImageSlider', () => {
-  let component: ImageSlider;
-  let fixture: ComponentFixture<ImageSlider>;
+describe('Footer', () => {
+  let component: Footer;
+  let fixture: ComponentFixture<Footer>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ImageSlider]
+      imports: [Footer]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ImageSlider);
+    fixture = TestBed.createComponent(Footer);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

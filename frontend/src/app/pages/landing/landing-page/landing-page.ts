@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { HeroComponent } from '../sections/hero/hero';
-import { ImageSliderComponent } from '../sections/image-slider/image-slider';
+import { Footer } from '../../../layout/footer/footer';
+import { Header } from '../../../layout/header/header';
 
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [HeroComponent, ImageSliderComponent],
+  imports: [HeroComponent, Header, Footer],
   templateUrl: './landing-page.html',
   styleUrl: './landing-page.scss'
 })

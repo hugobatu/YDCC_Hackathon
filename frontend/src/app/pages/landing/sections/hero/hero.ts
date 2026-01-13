@@ -1,9 +1,10 @@
 import {
   Component,
   signal,
-  effect,
   inject,
-  PLATFORM_ID
+  PLATFORM_ID,
+  OnInit,
+  OnDestroy
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 
@@ -14,25 +15,31 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
   templateUrl: './hero.html',
   styleUrl: './hero.scss'
 })
-export class HeroComponent {
-  private platformId = inject(PLATFORM_ID);
-  private isBrowser = isPlatformBrowser(this.platformId);
-
+export class HeroComponent implements OnInit, OnDestroy {
   images = [
-    '/assets/hero-1.jpg',
-    '/assets/hero-2.jpg',
-    '/assets/hero-3.jpg'
+    '/assets/2.jpg',
+    '/assets/3.jpg',
+    '/assets/4.jpg'
   ];
 
   currentIndex = signal(0);
+  private intervalId: any;
 
-  constructor() {
-    if (this.isBrowser) {
-      setInterval(() => {
+  private platformId = inject(PLATFORM_ID);
+
+  ngOnInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.intervalId = setInterval(() => {
         this.currentIndex.update(
-          i => (i + 1) % this.images.length
+          (i) => (i + 1) % this.images.length
         );
-      }, 5000);
+      }, 4000);
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
     }
   }
 }
