@@ -33,7 +33,7 @@ export class HeroComponent implements OnInit, OnDestroy {
         this.currentIndex.update(
           (i) => (i + 1) % this.images.length
         );
-      }, 4000);
+      }, 3000);
     }
   }
 

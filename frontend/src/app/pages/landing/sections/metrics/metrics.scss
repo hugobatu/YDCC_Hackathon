@@ -1,0 +1,89 @@
+@use '../../../../../styles/variables' as v;
+
+
+.metrics-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 6rem 3rem;
+  text-align: center;
+  border-radius: 18px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.metrics-subtitle {
+  color: #475569;
+  max-width: 480px;
+  margin: 1.5rem auto 3.5rem;
+}
+
+.metric-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 18px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+  
+  &:hover {
+    transform: translateY(-6px);
+
+    .metric-icon {
+      background: v.$color-primary;
+      color: white;
+    }
+  }
+}
+
+.metric-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  background: rgba(v.$color-primary, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: v.$color-primary;
+  transition: all 0.25s ease;
+
+  mat-icon {
+    font-size: 26px;
+  }
+}
+
+.metric-label {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.6rem;
+}
+
+.metric-unit {
+  font-size: 1rem;
+  color: v.$color-primary;
+  margin-left: 0.3rem;
+}
+
+.metric-description {
+  color: #64748b;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}

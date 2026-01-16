@@ -1,0 +1,30 @@
+<div class="metrics-container">
+  <h1 class="metrics-title">
+    Key Water Quality Metrics We Monitor
+  </h1>
+
+  <p class="metrics-subtitle">
+    AquaSentinel AI continuously tracks critical indicators to ensure
+    healthy aquaculture environments in the Mekong Delta.
+  </p>
+
+  <div class="metrics-grid">
+    @for (metric of metrics; track metric.key) {
+    <div class="metric-card">
+      <div class="metric-icon">
+        <mat-icon>{{ metric.icon }}</mat-icon>
+      </div>
+
+      <h3 class="metric-label">
+        {{ metric.label }}
+        <span class="metric-unit">{{ metric.unit }}</span>
+      </h3>
+
+      <p class="metric-description">
+        {{ metric.description }}
+      </p>
+    </div>
+    }
+  </div>
+
+</div>

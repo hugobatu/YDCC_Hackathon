@@ -1,0 +1,27 @@
+
+
+.visualization {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 64px;
+  padding: 120px 10%;
+  background: white;
+  min-height: 500px;
+
+  opacity: 0;
+  transform: translateY(60px);
+  transition: all 1s ease;
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .visualization {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 80px 5%;
+  }
+}

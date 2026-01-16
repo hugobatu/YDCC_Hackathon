@@ -3,4 +3,5 @@ import { LandingPageComponent } from './pages/landing/landing-page/landing-page'
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
+  // { patg: }
 ];
