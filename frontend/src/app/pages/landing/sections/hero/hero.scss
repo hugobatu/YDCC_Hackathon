@@ -42,6 +42,7 @@
   position: relative;
   overflow: hidden;
   height: 100%;
+  pointer-events: none;
 }
 
 .slider {
@@ -106,7 +107,7 @@
 /* Responsive */
 @media (max-width: 900px) {
   .hero {
-    grid-template-columns: 0.35fr 1fr;
+    grid-template-columns: 1fr 0fr;
   }
 
   .hero-slider {

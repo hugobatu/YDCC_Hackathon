@@ -1,0 +1,45 @@
+<div class="signup-page">
+  <app-header></app-header>
+
+  <main class="signup-container">
+    <div class="signup-box">
+      <div class="signup-header">
+        <h1>Create an account</h1>
+        <p>Join Aqua Sentinel AI — secure your farm with smarter water monitoring.</p>
+      </div>
+
+      <form (ngSubmit)="onSignup()" class="signup-form">
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+        <div class="form-group">
+          <label class="label" for="fullName">Full Name</label>
+          <input id="fullName" name="fullName" [(ngModel)]="fullName" class="input-field" placeholder="Your full name" required />
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="email">Email Address</label>
+          <input id="email" type="email" name="email" [(ngModel)]="email" class="input-field" placeholder="name@example.com" required />
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="password">Password</label>
+          <input id="password" type="password" name="password" [(ngModel)]="password" class="input-field" placeholder="Choose a strong password" required />
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="confirmPassword">Confirm password</label>
+          <input id="confirmPassword" type="password" name="confirmPassword" [(ngModel)]="confirmPassword" class="input-field" placeholder="Repeat your password" required />
+        </div>
+
+        <button type="submit" class="signup-button" [disabled]="loading">
+          <span *ngIf="!loading">Create Account</span>
+          <span *ngIf="loading">Creating...</span>
+        </button>
+      </form>
+
+      <div class="signin-link">Already have an account? <a href="/login">Sign in</a></div>
+    </div>
+  </main>
+
+  <app-footer></app-footer>
+</div>
