@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Header } from '../../../layout/header/header';
 import { Footer } from '../../../layout/footer/footer';
 import { NotificationService } from '../../../services/notification.service';
+import { AuthService } from '../../../services/auth.service';
+import { LoadingService } from '../../../services/loading.service';
 
 @Component({
   selector: 'app-login-page',
@@ -18,7 +21,10 @@ export class LoginPage {
   loading: boolean = false;
   errorMessage: string = '';
 
-  constructor(private notificationService: NotificationService) {}
+  private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
+  private loadingService = inject(LoadingService);
+  private router = inject(Router);
 
   onLogin() {
     if (!this.email || !this.password) {
@@ -28,16 +34,17 @@ export class LoginPage {
     }
     this.errorMessage = '';
     this.loading = true;
-    
-    // TODO: Implement actual login logic
-    console.log('Login attempt:', { email: this.email, password: this.password, rememberMe: this.rememberMe });
+    this.loadingService.show();
     
     // Simulate API call
     setTimeout(() => {
       this.loading = false;
+      // Call auth service to login
+      this.authService.login(this.email, this.password);
+      this.loadingService.hide();
       this.notificationService.success('Login successful! Welcome back.', 4000);
-      // You can redirect here after showing the notification
-      // this.router.navigate(['/dashboard']);
+      // Redirect to dashboard
+      this.router.navigate(['/dashboard']);
     }, 2000);
   }
 }

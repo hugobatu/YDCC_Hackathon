@@ -76,6 +76,7 @@
 .btn {
   padding: 0.6rem 1.1rem;
   font-size: 0.95rem;
+  font-weight: 600;
   border-radius: 10px;
   cursor: pointer;
   border: none;
@@ -98,6 +99,22 @@
   &:hover {
     opacity: 0.9;
   }
+}
+
+.btn-logout {
+  background: #dc2626;
+  color: white;
+
+  &:hover {
+    background: #ef4444;
+  }
+}
+
+.user-name {
+  font-size: 0.95rem;
+  color: #334155;
+  font-weight: 500;
+  padding: 0.4rem 1.1rem;
 }
 
 /* Responsive */

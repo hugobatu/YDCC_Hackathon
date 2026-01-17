@@ -1,21 +1,30 @@
 <header class="header">
   <div class="header-container">
-    <div class="logo">
+    <div class="logo" routerLink="">
       <span class="logo-highlight">Aqua</span>Sentinel AI
     </div>
 
     <!-- Navigation -->
     <nav class="nav">
-      <a href="#" class="nav-link">Home</a>
-      <a href="#" class="nav-link">Features</a>
-      <a href="#" class="nav-link">Dashboard</a>
+      <a href="#" class="nav-link" routerLink="">Home</a>
+      <!-- <a href="#" class="nav-link">Features</a> -->
+      <a href="#" class="nav-link" routerLink="/dashboard">Dashboard</a>
       <a href="#" class="nav-link">About</a>
     </nav>
 
     <!-- Actions -->
     <div class="actions">
-      <button class="btn btn-login" routerLink="/login">Login</button>
-      <button class="btn btn-signup" routerLink="/signup">Sign Up</button>
+      <!-- Not Logged In -->
+      <ng-container *ngIf="!authService.isAuthenticated()">
+        <button class="btn btn-login" routerLink="/login">Login</button>
+        <button class="btn btn-signup" routerLink="/signup">Sign Up</button>
+      </ng-container>
+
+      <!-- Logged In -->
+      <ng-container *ngIf="authService.isAuthenticated()">
+        <span class="user-name">Welcome, {{ authService.currentUser()?.name }}</span>
+        <button class="btn btn-logout" (click)="logout()">Logout</button>
+      </ng-container>
     </div>
   </div>
 </header>

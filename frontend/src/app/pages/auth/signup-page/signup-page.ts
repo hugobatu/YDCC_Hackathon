@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Header } from '../../../layout/header/header';
 import { Footer } from '../../../layout/footer/footer';
 import { NotificationService } from '../../../services/notification.service';
+import { AuthService } from '../../../services/auth.service';
+import { LoadingService } from '../../../services/loading.service';
 
 @Component({
   selector: 'app-signup-page',
@@ -19,7 +22,10 @@ export class SignupPage {
   loading: boolean = false;
   errorMessage: string = '';
 
-  constructor(private notificationService: NotificationService) {}
+  private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
+  private loadingService = inject(LoadingService);
+  private router = inject(Router);
 
   onSignup() {
     if (!this.fullName || !this.email || !this.password || !this.confirmPassword) {
@@ -36,18 +42,16 @@ export class SignupPage {
 
     this.errorMessage = '';
     this.loading = true;
-
-    // TODO: call signup API
-    console.log('Signup attempt:', { fullName: this.fullName, email: this.email });
+    this.loadingService.show();
 
     setTimeout(() => {
       this.loading = false;
-      this.notificationService.success('Signup successful! Please check your email to verify.', 4000);
-      // Optionally reset form
-      this.fullName = '';
-      this.email = '';
-      this.password = '';
-      this.confirmPassword = '';
+      // Call auth service to signup
+      this.authService.signup(this.email, this.fullName, this.password);
+      this.loadingService.hide();
+      this.notificationService.success('Signup successful! Welcome to Aqua Sentinel AI.', 4000);
+      // Redirect to dashboard
+      this.router.navigate(['/dashboard']);
     }, 1500);
   }
 }
