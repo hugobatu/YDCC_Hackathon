@@ -1,0 +1,183 @@
+@use '../../../../styles/variables' as v;
+
+.pool-detail-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.pool-detail-header {
+  flex-shrink: 0;
+}
+
+.pool-detail-main {
+  flex: 1;
+  background: linear-gradient(135deg, #f5f7fa 0%, #f0f4f8 100%);
+  padding: 40px 20px;
+}
+
+.pool-detail-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.detail-top-section {
+  margin-bottom: 40px;
+}
+
+.btn-back {
+  background: white;
+  color: v.$color-primary;
+  border: 2px solid v.$color-primary;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: v.$color-primary;
+    color: white;
+    transform: translateX(-4px);
+  }
+}
+
+.detail-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 8px 0;
+}
+
+.detail-subtitle {
+  font-size: 14px;
+  color: #718096;
+  margin: 0;
+}
+
+.pool-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.info-card {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a0aec0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.detail-content-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+.chart-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.measurements-box {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.measurements-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 20px 0;
+}
+
+.measurements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.measurement-item {
+  background: linear-gradient(135deg, #f5f7fa 0%, #f0f4f8 100%);
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid v.$color-primary;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.measurement-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #718096;
+  text-transform: uppercase;
+}
+
+.measurement-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.consultant-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.pool-detail-footer {
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .detail-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pool-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .pool-detail-main {
+    padding: 24px 16px;
+  }
+
+  .detail-title {
+    font-size: 28px;
+  }
+
+  .pool-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .measurements-grid {
+    grid-template-columns: 1fr;
+  }
+}

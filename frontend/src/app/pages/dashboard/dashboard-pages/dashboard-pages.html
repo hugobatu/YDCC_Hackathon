@@ -1,1 +1,47 @@
-<p>dashboard-pages works!</p>
+<div class="dashboard-wrapper">
+  <section class="dashboard-header">
+    <app-header></app-header>
+  </section>
+
+  <main class="dashboard-main">
+    <div class="dashboard-container">
+      <!-- Dashboard Title Section -->
+      <div class="dashboard-title-section">
+        <div>
+          <h1 class="dashboard-title">My Pools</h1>
+          <p class="dashboard-subtitle">Manage and monitor your aquaculture pools</p>
+        </div>
+        <button class="btn btn-add-pool" (click)="onAddPool()">
+          + Add New Pool
+        </button>
+      </div>
+
+      <!-- Pools Grid -->
+      <div *ngIf="poolService.pools().length > 0" class="pools-grid">
+        <app-pool-card
+          *ngFor="let pool of poolService.pools()"
+          [pool]="pool"
+          (edit)="onEditPool($event)"
+          (delete)="onDeletePool($event)"
+          (viewDetails)="onViewPoolDetails($event)"
+        ></app-pool-card>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="poolService.pools().length === 0" class="empty-state">
+        <div class="empty-state-content">
+          <p class="empty-icon">🏊</p>
+          <h2>No Pools Yet</h2>
+          <p>Create your first pool to start monitoring water quality</p>
+          <button class="btn btn-add-pool" (click)="onAddPool()">
+            + Create Your First Pool
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- <section class="dashboard-footer">
+    <app-footer></app-footer>
+  </section> -->
+</div>

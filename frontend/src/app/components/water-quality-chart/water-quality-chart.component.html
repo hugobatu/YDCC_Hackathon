@@ -1,0 +1,17 @@
+<div class="chart-container">
+  <h3 class="chart-title">Water Quality Metrics</h3>
+  <div class="chart-tabs">
+    <button
+      *ngFor="let metric of metrics"
+      [class.active]="selectedMetric === metric"
+      (click)="selectMetric(metric)"
+      class="chart-tab"
+    >
+      {{ metric }}
+    </button>
+  </div>
+  <canvas id="waterQualityChart" class="chart-canvas"></canvas>
+  <div class="chart-info">
+    <p>Last updated: {{ lastUpdated | date: 'short' }}</p>
+  </div>
+</div>

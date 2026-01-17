@@ -1,0 +1,28 @@
+<div class="pool-card">
+  <div class="pool-card-header">
+    <h3 class="pool-name">{{ pool.pool_name }}</h3>
+    <button class="btn-delete" (click)="onDelete()" title="Delete pool">
+      ✕
+    </button>
+  </div>
+
+  <div class="pool-details">
+    <div class="detail-item">
+      <span class="label">Species:</span>
+      <span class="value">{{ pool.species_id }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="label">Region:</span>
+      <span class="value">{{ pool.region_id }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="label">Created:</span>
+      <span class="value">{{ pool.created_at | date: 'short' }}</span>
+    </div>
+  </div>
+
+  <div class="pool-actions">
+    <button class="btn btn-primary" (click)="onEdit()">Edit</button>
+    <button class="btn btn-secondary" (click)="onViewDetails()">View Details</button>
+  </div>
+</div>

@@ -1,0 +1,109 @@
+@use '../../../styles/variables' as v;
+
+.pool-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+//   transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+
+//   &:hover {
+//     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+//     transform: translateY(-4px);
+//   }
+}
+
+.pool-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f4f8;
+}
+
+.pool-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+  flex: 1;
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  color: #a0aec0;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #ef4444;
+  }
+}
+
+.pool-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+
+  .label {
+    font-weight: 500;
+    color: #718096;
+    font-size: 13px;
+  }
+
+  .value {
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 14px;
+  }
+}
+
+.pool-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: v.$color-primary;
+  color: white;
+
+  &:hover {
+    background: darken(v.$color-primary, 10%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #2d3748;
+
+  &:hover {
+    background: #cbd5e0;
+    transform: translateY(-2px);
+  }
+}
