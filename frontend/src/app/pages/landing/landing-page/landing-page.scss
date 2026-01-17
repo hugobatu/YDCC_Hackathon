@@ -1,0 +1,40 @@
+.section-separator1 {
+  width: 100%;
+  height: 120px;
+  background: linear-gradient(180deg, white 0%, #f8fafc 100%);
+  position: relative;
+  margin: -1px 0 0 0;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  path {
+    fill: white;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+  }
+}
+
+.section-separator2 {
+  width: 100%;
+  height: 120px;
+  background: white;
+  position: relative;
+  margin: -1px 0 0 0;
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  path {
+    fill: white;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+  }
+}
+
+.section-separator2 path {
+  fill: #f8fafc;
+}

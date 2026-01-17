@@ -1,9 +1,14 @@
 .ai-card {
-  opacity: 0;
-  transform: translateX(40px);
+  opacity: 1;
+  transform: translateX(0);
   transition: all 1s ease 0.3s;
 
   &.show {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  &.active {
     opacity: 1;
     transform: translateX(0);
   }
@@ -18,4 +23,31 @@
 .robot {
   font-size: 26px;
   margin-bottom: 16px;
+}
+
+.ai-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 12px;
+  font-weight: 600;
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #4caf50;
+    animation: pulse 2s infinite;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }

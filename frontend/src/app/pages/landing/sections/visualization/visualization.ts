@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { ChartDemoComponent } from '../chart-demo/chart-demo';
 import { AiAgent } from '../ai-agent/ai-agent';
+// import { isPlatformBrowser } from '@angular/common';
+// import { Inject, PLATFORM_ID } from '@angular/core';
 
 @Component({
   selector: 'app-visualization-section',
@@ -9,4 +11,5 @@ import { AiAgent } from '../ai-agent/ai-agent';
   templateUrl: './visualization.html',
   styleUrl: './visualization.scss',
 })
-export class Visualization {}
+export class Visualization {
+}
