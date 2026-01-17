@@ -17,9 +17,11 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 })
 export class HeroComponent implements OnInit, OnDestroy {
   images = [
+    '/assets/1.jpg',
     '/assets/2.jpg',
     '/assets/3.jpg',
-    '/assets/4.jpg'
+    '/assets/4.jpg',
+    '/assets/5.jpg'
   ];
 
   currentIndex = signal(0);
