@@ -1,24 +1,32 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Header } from "../../../layout/header/header";
 import { Footer } from '../../../layout/footer/footer';
 import { PoolCardComponent } from '../../../components/pool-card/pool-card.component';
+import { AddPoolModalComponent } from '../../../components/add-pool-modal/add-pool-modal.component';
 import { PoolService, Pool } from '../../../services/pool.service';
 
 @Component({
   selector: 'app-dashboard-pages',
-  imports: [CommonModule, Header, Footer, PoolCardComponent],
+  imports: [CommonModule, Header, PoolCardComponent, AddPoolModalComponent],
   templateUrl: './dashboard-pages.html',
   styleUrl: './dashboard-pages.scss',
 })
 export class DashboardPages {
+  @ViewChild(AddPoolModalComponent) addPoolModal!: AddPoolModalComponent;
+  
   poolService = inject(PoolService);
   private router = inject(Router);
 
   onAddPool() {
-    // TODO: Open modal or navigate to add pool form
-    alert('Open add pool modal');
+    this.addPoolModal.open();
+  }
+
+  onPoolAdded(poolData: any) {
+    console.log('New pool created:', poolData);
+    // TODO: Refresh pool list after successful creation
+    // this.poolService.getAllPools().subscribe(...);
   }
 
   onEditPool(pool: Pool) {

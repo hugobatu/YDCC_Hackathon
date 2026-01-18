@@ -1,0 +1,30 @@
+<div class="system-control-container">
+    <div class="control-header">
+        <h3>⚙️ System Control</h3>
+        <span class="control-subtitle">Manage pool devices</span>
+    </div>
+
+    <div class="devices-grid">
+        <div *ngFor="let device of devices" class="device-card" [class.active]="device.isActive">
+
+            <div class="device-info">
+                <span class="device-icon">{{ device.icon }}</span>
+                <div class="device-details">
+                    <h4 class="device-name">{{ device.name }}</h4>
+                    <p class="device-description">{{ device.description }}</p>
+                </div>
+            </div>
+
+            <div class="device-control">
+                <span class="status-badge" [class.status-on]="device.isActive" [class.status-off]="!device.isActive">
+                    {{ getDeviceStatus(device) }}
+                </span>
+                <button class="toggle-btn" [class.btn-on]="device.isActive" [class.btn-off]="!device.isActive"
+                    (click)="toggleDevice(device)">
+                    <span *ngIf="device.isActive">Turn OFF</span>
+                    <span *ngIf="!device.isActive">Turn ON</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

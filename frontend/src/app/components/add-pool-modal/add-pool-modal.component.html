@@ -1,0 +1,59 @@
+<div class="modal-backdrop" *ngIf="isOpen" (click)="onBackdropClick($event)">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2>Add New Pool</h2>
+            <button class="btn-close" (click)="closeModal()" type="button">✕</button>
+        </div>
+
+        <form class="modal-body" (ngSubmit)="onSubmit()">
+            <!-- Pool Name -->
+            <div class="form-group">
+                <label for="poolName" class="form-label">
+                    Pool Name <span class="required">*</span>
+                </label>
+                <input type="text" id="poolName" class="form-input" [(ngModel)]="poolName" name="poolName"
+                    placeholder="Enter pool name (e.g., Main Shrimp Pool A1)" required />
+            </div>
+
+            <!-- Species Selection -->
+            <div class="form-group">
+                <label for="species" class="form-label">
+                    Aquatic Species <span class="required">*</span>
+                </label>
+                <select id="species" class="form-select" [(ngModel)]="selectedSpeciesId" name="species" required>
+                    <option value="" disabled>Select a species</option>
+                    <option *ngFor="let sp of species" [value]="sp.species_id">
+                        {{ sp.species_name }}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Region Selection -->
+            <div class="form-group">
+                <label for="region" class="form-label">
+                    Region <span class="required">*</span>
+                </label>
+                <select id="region" class="form-select" [(ngModel)]="selectedRegionId" name="region" required>
+                    <option value="" disabled>Select a region</option>
+                    <option *ngFor="let reg of regions" [value]="reg.region_id">
+                        {{ reg.region_name }}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="modal-actions">
+                <button type="button" class="btn btn-cancel" (click)="closeModal()" [disabled]="isSubmitting">
+                    Cancel
+                </button>
+                <button type="submit" class="btn btn-submit" [disabled]="!isFormValid() || isSubmitting">
+                    <span *ngIf="!isSubmitting">Create Pool</span>
+                    <span *ngIf="isSubmitting" class="loading-text">
+                        <span class="spinner-small"></span>
+                        Creating...
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

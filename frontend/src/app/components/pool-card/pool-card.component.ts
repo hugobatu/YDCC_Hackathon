@@ -14,7 +14,7 @@ export class PoolCardComponent {
   @Output() edit = new EventEmitter<Pool>();
   @Output() delete = new EventEmitter<string>();
   @Output() viewDetails = new EventEmitter<Pool>();
-
+  
   onEdit() {
     this.edit.emit(this.pool);
   }

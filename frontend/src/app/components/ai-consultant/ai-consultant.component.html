@@ -1,26 +1,42 @@
 <div class="ai-consultant-box">
   <div class="consultant-header">
     <h3>🤖 AI Consultant</h3>
-    <button *ngIf="!isOpen" class="btn-toggle" (click)="toggleOpen()">Ask for Advice</button>
-    <button *ngIf="isOpen" class="btn-toggle btn-close" (click)="toggleOpen()">Close</button>
   </div>
 
-  <div *ngIf="isOpen" class="consultant-content">
-    <div class="chat-messages">
-      <div *ngFor="let message of messages()" [class]="'message message-' + message.type">
-        <p class="message-text">{{ message.text }}</p>
-        <span class="message-time">{{ message.timestamp | date: 'short' }}</span>
+  <div class="consultant-content">
+
+    <div *ngIf="!advice && !isLoading" class="initial-state">
+      <p>Need help analyzing your pool status?</p>
+      <button class="btn-action primary" (click)="getAdvice()">Get AI Advice</button>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Analyzing pool data...</p>
+    </div>
+
+    <div *ngIf="advice" class="advice-state">
+      <div class="advice-text-box">
+        <h4>Analysis Result:</h4>
+        <p>{{ advice }}</p>
+      </div>
+
+      <div class="actions-box" *ngIf="suggestedActions.length > 0">
+        <h4>Recommended Actions:</h4>
+        <div class="action-buttons">
+          <button *ngFor="let item of suggestedActions" class="btn-action secondary" [class.performed]="item.performed"
+            (click)="performAction(item)" [disabled]="item.performed">
+            <span *ngIf="!item.performed">🚀</span>
+            <span *ngIf="item.performed">✅</span>
+            {{ item.label }}
+          </button>
+        </div>
+      </div>
+
+      <div class="regenerate-box">
+        <button class="btn-link" (click)="getAdvice()">Regenerate Result</button>
       </div>
     </div>
 
-    <div class="consultant-input">
-      <textarea
-        [(ngModel)]="userInput"
-        (keydown.enter)="sendMessage()"
-        placeholder="Ask for water quality advice..."
-        class="input-field"
-      ></textarea>
-      <button (click)="sendMessage()" class="btn btn-send">Send</button>
-    </div>
   </div>
 </div>

@@ -7,6 +7,8 @@ import { PoolService, Pool } from '../../../services/pool.service';
 import { WaterMeasurementService, WaterMeasurement } from '../../../services/water-measurement.service';
 import { WaterQualityChartComponent } from '../../../components/water-quality-chart/water-quality-chart.component';
 import { AiConsultantComponent } from '../../../components/ai-consultant/ai-consultant.component';
+import { NewsComponent } from '../../../components/news/news.component';
+import { SystemControlComponent } from '../../../components/system-control/system-control.component';
 
 @Component({
   selector: 'app-pool-detail',
@@ -16,7 +18,9 @@ import { AiConsultantComponent } from '../../../components/ai-consultant/ai-cons
     Header,
     Footer,
     WaterQualityChartComponent,
-    AiConsultantComponent
+    AiConsultantComponent,
+    NewsComponent,
+    SystemControlComponent
   ],
   templateUrl: './pool-detail.component.html',
   styleUrl: './pool-detail.component.scss'

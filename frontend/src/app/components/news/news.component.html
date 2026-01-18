@@ -1,0 +1,15 @@
+<div class="news-container">
+    <div class="news-header">
+        <h3>📰 Industry News</h3>
+    </div>
+    <div class="news-list">
+        <div class="news-item" *ngFor="let item of newsItems">
+            <div class="news-meta">
+                <span class="news-source">{{ item.source }}</span> •
+                <span class="news-date">{{ item.date | date: 'MMM d' }}</span>
+            </div>
+            <h4 class="news-title">{{ item.title }}</h4>
+            <p class="news-summary">{{ item.summary }}</p>
+        </div>
+    </div>
+</div>

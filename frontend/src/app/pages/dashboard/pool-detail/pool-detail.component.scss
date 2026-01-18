@@ -90,11 +90,22 @@
 
 .detail-content-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr;
   gap: 24px;
 }
 
 .chart-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.control-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.consultant-section {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -146,6 +157,7 @@
 .consultant-section {
   display: flex;
   flex-direction: column;
+  gap: 24px;
 }
 
 .pool-detail-footer {
@@ -154,13 +166,38 @@
 }
 
 // Responsive Design
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .detail-content-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+      "chart chart"
+      "control consultant";
+  }
+
+  .chart-section {
+    grid-area: chart;
+  }
+
+  .control-section {
+    grid-area: control;
+  }
+
+  .consultant-section {
+    grid-area: consultant;
   }
 
   .pool-info-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .detail-content-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "chart"
+      "control"
+      "consultant";
   }
 }
 
