@@ -21,6 +21,19 @@ app.include_router(pool_management.router, prefix="/api/pool")
 async def root():
     return {"message": "Aqua Sentinel AI API is running"}
 
+# Init Simulation on Startup
+from app.services.simulation_service import simulation_service
+
+@app.on_event("startup")
+async def startup_event():
+    # Bắt đầu mô phỏng dữ liệu tự động
+    await simulation_service.start()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await simulation_service.stop()
+
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT_APP", 8000))

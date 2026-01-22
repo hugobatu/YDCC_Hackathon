@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  simulation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aqua-sentinel-simulation
+    restart: unless-stopped
+    environment:
+      # Database connection - Use environment variables
+      DB_USER: ${DB_USER:-postgres.bvzjhenioiexsudmprsf}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST:-aws-1-ap-south-1.pooler.supabase.com}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:-postgres}
+    # Optionally use env_file instead
+    env_file:
+      - .env
+    # Resource limits (optional but recommended)
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Health check (optional)
+    healthcheck:
+      test: [ "CMD-SHELL", "pgrep -f 'python -m app.app' || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Optional: Network configuration
+networks:
+  default:
+    name: aqua-sentinel-network

@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database Service
+  db:
+    image: postgres:15
+    container_name: aqua_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${USER:-postgres}
+      POSTGRES_PASSWORD: ${PASSWORD:-aqua_secret_password}
+      POSTGRES_DB: ${DBNAME:-aqua_sentinel}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      # Persist data to the VPS disk
+      - ./postgres_data:/var/lib/postgresql/data
+    ports:
+      # Expose port only if you need to connect from outside (e.g. TablePlus)
+      # Otherwise, comment this out for security
+      - "${PORT:-5432}:5432"
+    networks:
+      - aqua_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. FastAPI Application + Simulation Service
+  app:
+    build: .
+    container_name: aqua_api
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Connection strings using service name "db" instead of localhost
+      user: ${USER:-postgres}
+      password: ${PASSWORD:-aqua_secret_password}
+      host: db  # Must match the service name above
+      port: 5432
+      dbname: ${DBNAME:-aqua_sentinel}
+      PORT_APP: 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      # Optional: Mount code for hot-reload if developing on VPS (remove in production)
+      # - ./:/app 
+      - ./logs:/app/logs
+    networks:
+      - aqua_network
+
+networks:
+  aqua_network:
+    driver: bridge

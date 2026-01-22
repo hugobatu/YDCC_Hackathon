@@ -6,7 +6,7 @@
         <div class="news-item" *ngFor="let item of newsItems">
             <div class="news-meta">
                 <span class="news-source">{{ item.source }}</span> •
-                <span class="news-date">{{ item.date | date: 'MMM d' }}</span>
+                <span class="news-date">{{ item.date | date: 'MMMM d' }}</span>
             </div>
             <h4 class="news-title">{{ item.title }}</h4>
             <p class="news-summary">{{ item.summary }}</p>
