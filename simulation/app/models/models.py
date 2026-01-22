@@ -2,7 +2,7 @@ import uuid
 from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Text, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from db.connection import Base
+from app.db.connection import Base
 
 # 1. Bảng Vùng Miền (Region)
 class Region(Base):
