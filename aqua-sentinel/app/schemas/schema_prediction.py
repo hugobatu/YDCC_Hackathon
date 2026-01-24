@@ -12,13 +12,14 @@ class SensorPoint(BaseModel):
     feeding_event: int
 
 class PredictRequest(BaseModel):
+    pool_id: str
     species: str = "tom" 
-    history: List[SensorPoint]
+    history: List[SensorPoint] = None  # Optional: auto-fetch from DB if not provided
 
 class PredictResponse(BaseModel):
     species: str
     current_values: Dict[str, float]
-    prediction_next_5min: Dict[str, float]
+    prediction_next_30min: Dict[str, float]
     risk_level: str
     details: List[str]
     thresholds: Dict[str, Any]

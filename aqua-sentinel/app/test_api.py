@@ -8,9 +8,10 @@ from datetime import datetime, timedelta
 # =========================
 API_URL = "http://127.0.0.1:8000/api/predict"
 
-def generate_history(scenario_name, start_time, steps=15):
+def generate_history(scenario_name, start_time, steps=30):
     """
-    Sinh ra chuỗi 15 điểm dữ liệu (75 phút) theo kịch bản.
+    Sinh ra chuỗi dữ liệu theo kịch bản.
+    Mặc định: 30 điểm (2.5 giờ) để đáp ứng yêu cầu tối thiểu 24 điểm cho mô hình 30 phút.
     """
     history = []
     base_time = pd.to_datetime(start_time)
@@ -87,8 +88,9 @@ def run_test(scenario_name, species="tom"):
     for item in history_data[-3:]:
         print(f"  - Time: {item['timestamp']} | DO: {item['dissolved_oxygen']} | pH: {item['ph']} | NH3: {item['ammonia']} | Temp: {item['temperature']})")
 
-    # 2. Gửi request (Thêm field species)
+    # 2. Gửi request (Thêm field species và pool_id)
     payload = {
+        "pool_id": "test_pool_001",  # Test pool ID
         "species": species,
         "history": history_data
     }
@@ -101,8 +103,8 @@ def run_test(scenario_name, species="tom"):
             
             # In kết quả
             print("\nPREDICTION RESULT:")
-            print("Full result:", result)
-            print(f"  - Predicted (5min): {result['prediction_next_5min']}")
+            # print("Full result:", result)
+            print(f"  - Predicted (30min): {result['prediction_next_30min']}")
             print(f"  - Risk Level:       [{result['risk_level']}]")
             
             # In lý do (Nếu có)
@@ -127,12 +129,133 @@ def run_test(scenario_name, species="tom"):
         print(f"Connection Error: {e}")
         print("   (Make sure uvicorn server is running)")
 
-if __name__ == "__main__":
-    # Test với loài Tôm (Nhạy cảm)
+
+
+# =========================
+# COMPREHENSIVE 30-MINUTE PREDICTION TESTS
+# =========================
+def test_minimum_data_points():
+    """
+    Test với chính xác 24 điểm dữ liệu (yêu cầu tối thiểu).
+    Mô hình cần 24 điểm để tính toán rolling window 24 steps.
+    """
+    print(f"\n{'='*20} TEST: MINIMUM 24 DATA POINTS {'='*20}")
+    
+    history_data = generate_history("SAFE", "2024-01-15 08:00:00", steps=24)
+    
+    payload = {
+        "pool_id": "test_pool_001",
+        "species": "tom",
+        "history": history_data
+    }
+    
+    try:
+        response = requests.post(API_URL, json=payload)
+        
+        if response.status_code == 200:
+            result = response.json()
+            print(f"✓ SUCCESS: API accepted exactly 24 data points")
+            print(f"  - Predicted (30min): {result['prediction_next_30min']}")
+            print(f"  - Risk Level: [{result['risk_level']}]")
+        else:
+            print(f"✗ FAILED: HTTP {response.status_code} - {response.text}")
+            
+    except Exception as e:
+        print(f"✗ ERROR: {e}")
+
+def test_insufficient_data():
+    """
+    Test với chỉ 23 điểm dữ liệu (dưới ngưỡng).
+    API phải từ chối với lỗi 400.
+    """
+    print(f"\n{'='*20} TEST: INSUFFICIENT DATA (23 points) {'='*20}")
+    
+    history_data = generate_history("SAFE", "2024-01-15 08:00:00", steps=23)
+    
+    payload = {
+        "pool_id": "test_pool_001",
+        "species": "tom",
+        "history": history_data
+    }
+    
+    try:
+        response = requests.post(API_URL, json=payload)
+        
+        if response.status_code == 400:
+            print(f"✓ SUCCESS: API correctly rejected insufficient data")
+            print(f"  - Error message: {response.json()['detail']}")
+        else:
+            print(f"✗ FAILED: Expected 400 error, got {response.status_code}")
+            
+    except Exception as e:
+        print(f"✗ ERROR: {e}")
+
+def test_extended_history():
+    """
+    Test với 50 điểm dữ liệu (nhiều hơn yêu cầu).
+    Đảm bảo API xử lý được dữ liệu dài.
+    """
+    print(f"\n{'='*20} TEST: EXTENDED HISTORY (50 points) {'='*20}")
+    
+    history_data = generate_history("WARNING", "2024-01-15 08:00:00", steps=50)
+    
+    payload = {
+        "pool_id": "test_pool_001",
+        "species": "tom",
+        "history": history_data
+    }
+    
+    try:
+        response = requests.post(API_URL, json=payload)
+        
+        if response.status_code == 200:
+            result = response.json()
+            print(f"✓ SUCCESS: API handled extended history")
+            print(f"  - Predicted (30min): {result['prediction_next_30min']}")
+            print(f"  - Risk Level: [{result['risk_level']}]")
+        else:
+            print(f"✗ FAILED: HTTP {response.status_code} - {response.text}")
+            
+    except Exception as e:
+        print(f"✗ ERROR: {e}")
+
+def run_all_30min_tests():
+    """
+    Chạy tất cả các test cho mô hình 30 phút.
+    """
+    print("\n" + "="*80)
+    print("COMPREHENSIVE TEST SUITE FOR 30-MINUTE PREDICTION MODEL")
+    print("="*80)
+    print("\nMô hình yêu cầu:")
+    print("  - Tần suất dữ liệu: 5 phút")
+    print("  - Dự đoán: 30 phút (6 bước)")
+    print("  - Rolling window lớn nhất: 24 bước (120 phút)")
+    print("  - Số điểm dữ liệu tối thiểu: 24 điểm (2 giờ)")
+    print("\n")
+    
+    # Test 1: Edge case - minimum data
+    test_minimum_data_points()
+    
+    # Test 2: Edge case - insufficient data
+    test_insufficient_data()
+    
+    # Test 3: Edge case - extended history
+    test_extended_history()
+    
+    # Test 4-6: Scenario tests with proper 30 data points
     run_test("SAFE", species="tom")
     run_test("WARNING", species="tom")
     run_test("DANGER", species="tom")
     
-    # Bonus: Test thử Cá Tra với kịch bản Warning của Tôm -> Nên ra SAFE
+    # Test 7: Cross-species validation
     print("\n\n>>> BONUS TEST: Same 'WARNING' data but for 'Catfish' (Ca Tra)")
     run_test("WARNING", species="ca_tra")
+    
+    print("\n" + "="*80)
+    print("TEST SUITE COMPLETED")
+    print("="*80)
+
+
+if __name__ == "__main__":
+    # Run comprehensive test suite for 30-minute prediction model
+    run_all_30min_tests()

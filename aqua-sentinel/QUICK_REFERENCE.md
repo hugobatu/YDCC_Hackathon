@@ -1,147 +1,61 @@
-# 🐟 Quick Reference: Species API Endpoints
+# Quick Reference: 30-Minute Prediction API
 
-## 📋 Endpoints at a Glance
+## 🎯 Key Answer: How Many Data Points?
 
-### 1️⃣ Get All Species (Public)
-```
-GET /api/pool/species/all
-```
-**No authentication required** ✅  
-Returns list of all available species in the system.
+**You need 24 data points (2 hours of data at 5-minute intervals)**
 
-**Quick Test:**
-```bash
-curl http://localhost:8000/api/pool/species/all
-```
+## Why 24?
+- Model uses 24-step rolling window (largest feature window)
+- 24 points × 5 minutes = 120 minutes = 2 hours of historical data
 
----
+## 🚀 How to Use
 
-### 2️⃣ Get Pool's Current Species (Protected)
-```
-GET /api/pool/{pool_id}/species
-```
-**Authentication required** 🔐  
-Returns species information for a specific pool.
-
-**Quick Test:**
-```bash
-curl -H "Authorization: Bearer YOUR_TOKEN" \
-     http://localhost:8000/api/pool/YOUR_POOL_ID/species
-```
-
----
-
-## 🚀 Quick Start
-
-### Step 1: Start Server
-```bash
-cd "c:\Users\quanh\OneDrive\Tài liệu\YDCC_Hackathon\aqua-sentinel"
-python -m uvicorn app.main:app --reload
-```
-
-### Step 2: Test Endpoints
-```bash
-# Run the test script
-python test_species_api.py
-```
-
-### Step 3: View API Docs
-Open browser: http://localhost:8000/docs
-
----
-
-## 📝 Response Examples
-
-### All Species Response
+### Method 1: Auto-Fetch (Recommended)
 ```json
-[
-  {
-    "species_id": "tom",
-    "species_name": "Tôm",
-    "created_at": "2024-01-01T00:00:00",
-    "updated_at": "2024-01-01T00:00:00"
-  }
-]
-```
-
-### Pool Species Response
-```json
+POST /api/predict
 {
-  "pool_id": "123e4567-...",
-  "pool_name": "Hồ số 1",
-  "species": {
-    "species_id": "tom",
-    "species_name": "Tôm",
-    "created_at": "2024-01-01T00:00:00",
-    "updated_at": "2024-01-01T00:00:00"
-  }
+  "pool_id": "<your_pool_uuid>",
+  "species": "tom"
 }
 ```
+✅ API automatically fetches latest 24 measurements from database
 
----
+### Method 2: Manual History
+```json
+POST /api/predict
+{
+  "pool_id": "<your_pool_uuid>",
+  "species": "tom",
+  "history": [ /* 24 SensorPoint objects */ ]
+}
+```
+✅ Backward compatible, useful for testing
 
-## 🔍 Common Use Cases
+## 🧪 Quick Test
 
-### Frontend: Populate Species Dropdown
-```javascript
-fetch('/api/pool/species/all')
-  .then(res => res.json())
-  .then(species => {
-    // Populate your <select> element
-    species.forEach(s => {
-      console.log(s.species_name);
-    });
-  });
+```bash
+# Test auto-fetch functionality
+python app/test_auto_fetch.py
+
+# Test comprehensive scenarios
+python app/test_api.py
 ```
 
-### Frontend: Display Pool's Species
-```javascript
-const poolId = 'your-pool-id';
-const token = 'your-access-token';
+## ✅ What Changed
 
-fetch(`/api/pool/${poolId}/species`, {
-  headers: { 'Authorization': `Bearer ${token}` }
-})
-  .then(res => res.json())
-  .then(data => {
-    console.log(`Species: ${data.species.species_name}`);
-  });
-```
+1. **Minimum data points**: 12 → 24
+2. **Prediction field**: `prediction_next_5min` → `prediction_next_30min`
+3. **History field**: Required → Optional (auto-fetch from DB)
+4. **Database integration**: Auto-fetches from `water_measurement` table
 
----
+## 📋 Requirements Checklist
 
-## 📚 Full Documentation
+For auto-fetch to work:
+- [ ] Pool exists in database
+- [ ] Pool has ≥ 24 measurements in `water_measurement` table
+- [ ] Measurements have `created_at` timestamps
+- [ ] Server is running: `uvicorn app.main:app --reload`
 
-- **Detailed API Docs:** See `SPECIES_API_DOCS.md`
-- **Implementation Summary:** See `IMPLEMENTATION_SUMMARY.md`
-- **Test Script:** Run `test_species_api.py`
+## 📖 Full Documentation
 
----
-
-## ⚠️ Important Notes
-
-1. **Public vs Protected:**
-   - `/species/all` is PUBLIC (no auth needed)
-   - `/{pool_id}/species` is PROTECTED (needs auth)
-
-2. **Authorization:**
-   - You can only view species from pools you own
-   - Attempting to access another user's pool returns 404
-
-3. **Database:**
-   - Make sure your database has species records
-   - Check `aquatic_species` table for available species
-
----
-
-## 🛠️ Files Modified
-
-- ✅ `app/api/pool_management.py` - Added 2 new endpoints
-- ✅ `SPECIES_API_DOCS.md` - Complete documentation
-- ✅ `test_species_api.py` - Test script
-- ✅ `IMPLEMENTATION_SUMMARY.md` - Implementation details
-- ✅ `QUICK_REFERENCE.md` - This file
-
----
-
-**Need help?** Check the detailed docs in `SPECIES_API_DOCS.md`
+See `API_CONFIGURATION_30MIN.md` for complete details.
