@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.api import predict
 from app.api import auth
 from app.api import pool_management
@@ -11,6 +12,20 @@ app = FastAPI(
     title="Aqua Sentinel AI",
     description="Hệ thống dự báo chất lượng nước và cảnh báo rủi ro nuôi trồng thủy sản",
     version="2.0.0"
+)
+
+# Cấu hình CORS cho frontend
+origins = [
+    "http://localhost:4200",
+    # "https://your-production-domain.com",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Danh sách các origin được phép
+    allow_credentials=True,  # Cho phép gửi cookies
+    allow_methods=["*"],     # Cho phép tất cả HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],     # Cho phép tất cả headers
 )
 
 app.include_router(predict.router, prefix="/api")
