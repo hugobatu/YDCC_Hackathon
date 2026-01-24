@@ -30,7 +30,7 @@
  * Example: /dashboard/pool-123
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Header } from '../../../layout/header/header';
@@ -57,7 +57,7 @@ import { SystemControlComponent } from '../../../components/system-control/syste
   templateUrl: './pool-detail.component.html',
   styleUrl: './pool-detail.component.scss'
 })
-export class PoolDetailComponent implements OnInit {
+export class PoolDetailComponent implements OnInit, OnDestroy {
   
   // ==================== COMPONENT STATE ====================
   
@@ -79,8 +79,17 @@ export class PoolDetailComponent implements OnInit {
    * Most recent water measurement for this pool
    * Displayed in the "Current Water Quality" section
    * null if no measurements exist for this pool
+   * 
+   * AUTO-REFRESH: Updated every 5 seconds via updateInterval
    */
   currentMeasurement: WaterMeasurement | null = null;
+
+  /**
+   * Interval ID for auto-refresh timer
+   * Updates currentMeasurement every 5 seconds to stay in sync with chart
+   * Cleared in ngOnDestroy to prevent memory leaks
+   */
+  private updateInterval: any;
 
   // ==================== INJECTED SERVICES ====================
   
@@ -108,6 +117,13 @@ export class PoolDetailComponent implements OnInit {
    */
   private router = inject(Router);
 
+  /**
+   * ChangeDetectorRef: Angular service for manual change detection
+   * Used to ensure UI updates immediately when currentMeasurement changes
+   * Especially important for preventing the "appearing/disappearing" issue
+   */
+  private cdr = inject(ChangeDetectorRef);
+
   // ==================== LIFECYCLE HOOKS ====================
 
   /**
@@ -121,6 +137,7 @@ export class PoolDetailComponent implements OnInit {
    * 2. Extract 'id' parameter from URL
    * 3. Store in poolId property
    * 4. Call loadPoolData() to fetch pool and measurement data
+   * 5. Set up auto-refresh interval (5 seconds) to sync with chart updates
    *
    * Route Parameter Format:
    * URL: /dashboard/pool-123
@@ -138,6 +155,12 @@ export class PoolDetailComponent implements OnInit {
       // Load the pool data using this ID
       this.loadPoolData();
     });
+
+    // Set up auto-refresh interval to update currentMeasurement every 5 seconds
+    // This keeps the "Current Water Quality" section in sync with the chart
+    this.updateInterval = setInterval(() => {
+      this.refreshCurrentMeasurement();
+    }, 5000); // 5000ms = 5 seconds (matches chart update interval)
   }
 
   // ==================== DATA LOADING ====================
@@ -199,6 +222,37 @@ export class PoolDetailComponent implements OnInit {
     }
   }
 
+  /**
+   * REFRESH CURRENT MEASUREMENT
+   * Updates the currentMeasurement with the latest water quality data
+   * Called every 5 seconds by the auto-refresh interval
+   * 
+   * Flow:
+   * 1. Get all measurements for this pool
+   * 2. Extract the latest measurement (last in array)
+   * 3. Update currentMeasurement property
+   * 4. Manually trigger change detection to ensure UI updates
+   * 
+   * Why manual change detection?
+   * - Prevents the "appearing/disappearing" issue
+   * - Ensures Angular immediately updates the template
+   * - Critical when using OnPush change detection strategy
+   * 
+   * Note: This method is separate from loadPoolData to avoid
+   * unnecessary pool data reloading on every refresh
+   */
+  private refreshCurrentMeasurement() {
+    // Get all measurements for this pool
+    const measurements = this.measurementService.getMeasurementsByPoolId(this.poolId);
+    
+    // Get the most recent measurement (last element in array)
+    this.currentMeasurement = measurements[measurements.length - 1] || null;
+    
+    // Manually trigger change detection to update UI immediately
+    // This ensures the "Current Water Quality" section stays visible
+    this.cdr.detectChanges();
+  }
+
   // ==================== NAVIGATION ====================
 
   /**
@@ -216,6 +270,23 @@ export class PoolDetailComponent implements OnInit {
    */
   goBack() {
     this.router.navigate(['/dashboard']);
+  }
+
+  /**
+   * Angular lifecycle hook - called when component is destroyed
+   * 
+   * Cleanup responsibilities:
+   * 1. Clear the update interval timer to prevent memory leaks
+   * 
+   * Important: Not cleaning up this resource can cause:
+   * - Memory leaks (interval continues running in background)
+   * - Unnecessary API/service calls after component destruction
+   * - Performance degradation over time
+   */
+  ngOnDestroy() {
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+    }
   }
   
   // ==================== FUTURE METHODS ====================

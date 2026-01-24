@@ -26,7 +26,7 @@
  * Route: /dashboard
  */
 
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Header } from "../../../layout/header/header";
@@ -46,7 +46,7 @@ import { PoolService, Pool } from '../../../services/pool.service';
   templateUrl: './dashboard-pages.html',
   styleUrl: './dashboard-pages.scss',
 })
-export class DashboardPages {
+export class DashboardPages implements OnInit {
   
   // ==================== VIEW CHILD ====================
   
@@ -79,6 +79,25 @@ export class DashboardPages {
    * Used to navigate to pool detail page when user clicks on a pool
    */
   private router = inject(Router);
+
+  // ==================== LIFECYCLE HOOKS ====================
+
+  /**
+   * Angular lifecycle hook - called when component is initialized
+   * Loads pools from API on component initialization
+   */
+  ngOnInit() {
+    // Load pools from API
+    this.poolService.loadPools().subscribe({
+      next: (pools) => {
+        console.log('Pools loaded successfully:', pools);
+      },
+      error: (error) => {
+        console.error('Error loading pools:', error);
+        // TODO: Show error notification to user
+      }
+    });
+  }
 
   // ==================== POOL OPERATIONS ====================
 
@@ -175,7 +194,7 @@ export class DashboardPages {
 
   /**
    * ON DELETE POOL
-   * Deletes a pool from the system
+   * Deletes a pool from the system via API
    * 
    * Triggered By:
    * - "Delete" button click on pool card
@@ -183,42 +202,34 @@ export class DashboardPages {
    *
    * @param poolId - ID of the pool to delete
    *
-   * Current Implementation: Direct deletion without confirmation
-   * TODO: Add confirmation dialog before deletion
-   * TODO: Show success/error message
-   * TODO: Handle deletion errors
-   *
-   * Recommended Implementation:
-   * async onDeletePool(poolId: string) {
-   *   // Show confirmation dialog
-   *   const confirmed = await this.confirmationService.confirm({
-   *     title: 'Delete Pool?',
-   *     message: 'This action cannot be undone.',
-   *     confirmText: 'Delete',
-   *     cancelText: 'Cancel'
-   *   });
-   *   
-   *   if (!confirmed) return;
-   *   
-   *   // Perform deletion
-   *   this.poolService.deletePool(poolId).subscribe({
-   *     next: () => {
-   *       this.toastService.success('Pool deleted successfully');
-   *     },
-   *     error: (error) => {
-   *       console.error('Error deleting pool:', error);
-   *       this.toastService.error('Failed to delete pool');
-   *     }
-   *   });
-   * }
+   * Implementation: 
+   * 1. Shows confirmation dialog
+   * 2. Calls API to delete pool
+   * 3. Updates local state on success
+   * 4. Shows error on failure
    */
   onDeletePool(poolId: string) {
-    // Delete pool directly (no confirmation - consider adding)
-    this.poolService.deletePool(poolId);
+    // Show confirmation dialog
+    const confirmed = confirm('Bạn có chắc chắn muốn xóa hồ này không? Hành động này không thể hoàn tác.');
     
-    // TODO: Add confirmation dialog
-    // TODO: Show success/error notification
-    // TODO: Handle API errors
+    if (!confirmed) {
+      return; // User cancelled
+    }
+
+    // Call API to delete pool
+    this.poolService.deletePool(poolId).subscribe({
+      next: (response) => {
+        console.log('Pool deleted successfully:', response);
+        // TODO: Show success notification
+        // this.toastService.success('Xóa hồ thành công');
+      },
+      error: (error) => {
+        console.error('Error deleting pool:', error);
+        alert('Có lỗi xảy ra khi xóa hồ. Vui lòng thử lại.');
+        // TODO: Show error notification
+        // this.toastService.error('Không thể xóa hồ');
+      }
+    });
   }
 
   /**

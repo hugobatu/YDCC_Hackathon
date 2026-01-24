@@ -33,9 +33,9 @@
                 <label for="region" class="form-label">
                     Region <span class="required">*</span>
                 </label>
-                <select id="region" class="form-select" [(ngModel)]="selectedRegionId" name="region" required>
+                <select id="region" class="form-select" [(ngModel)]="selectedRegionName" name="region" required>
                     <option value="" disabled>Select a region</option>
-                    <option *ngFor="let reg of regions" [value]="reg.region_id">
+                    <option *ngFor="let reg of regions" [value]="reg.region_name">
                         {{ reg.region_name }}
                     </option>
                 </select>

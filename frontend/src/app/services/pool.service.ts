@@ -20,7 +20,10 @@
  * this.poolService.addPool(pool) // Create new pool
  */
 
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap, catchError, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 /**
  * Interface for Pool data structure
@@ -39,7 +42,9 @@ export interface Pool {
   pool_id: string;
   pool_name: string;
   region_id: string;
+  region_name: string;
   species_id: string;
+  species_name: string;
   owner_id: string;
   created_at?: string;    // Optional: may not be needed in frontend
   updated_at?: string;    // Optional: may not be needed in frontend
@@ -54,6 +59,18 @@ export interface Pool {
 })
 export class PoolService {
   
+  // ==================== PRIVATE PROPERTIES ====================
+  
+  /**
+   * API URL từ environment config
+   */
+  private apiUrl = environment.apiUrl;
+  
+  /**
+   * HttpClient for making API calls
+   */
+  private http = inject(HttpClient);
+  
   // ==================== REACTIVE STATE ====================
   
   /**
@@ -65,54 +82,9 @@ export class PoolService {
    * - Fine-grained reactivity
    * - Better performance than traditional observables
    *
-   * Initial State: Mock data with 5 pools (note: duplicate IDs exist - bug)
-   * TODO: Remove mock data, initialize as empty array
-   * TODO: Load data from API on service initialization
+   * Initial State: Empty array (sẽ được load từ API)
    */
-  private poolsSignal = signal<Pool[]>([
-    {
-      pool_id: '1',
-      pool_name: 'Main Aquaculture Pool',
-      region_id: 'region-1',
-      species_id: 'tilapia',
-      owner_id: 'user-1',
-      created_at: new Date().toISOString()
-    },
-    {
-      pool_id: '2',
-      pool_name: 'Breeding Tank',
-      region_id: 'region-1',
-      species_id: 'shrimp',
-      owner_id: 'user-1',
-      created_at: new Date().toISOString()
-    },
-    {
-      pool_id: '3',
-      pool_name: 'Secondary Pool',
-      region_id: 'region-2',
-      species_id: 'catfish',
-      owner_id: 'user-1',
-      created_at: new Date().toISOString()
-    },
-    // BUG: Duplicate pool_id '3' - should be unique
-    {
-      pool_id: '3',
-      pool_name: 'Secondary Pool',
-      region_id: 'region-2',
-      species_id: 'catfish',
-      owner_id: 'user-1',
-      created_at: new Date().toISOString()
-    },
-    // BUG: Another duplicate pool_id '3'
-    {
-      pool_id: '3',
-      pool_name: 'Secondary Pool',
-      region_id: 'region-2',
-      species_id: 'catfish',
-      owner_id: 'user-1',
-      created_at: new Date().toISOString()
-    }
-  ]);
+  private poolsSignal = signal<Pool[]>([]);
 
   /**
    * Public readonly accessor for pools
@@ -127,80 +99,129 @@ export class PoolService {
    */
   public pools = this.poolsSignal.asReadonly();
 
+  // ==================== LOAD DATA FROM API ====================
+
+  /**
+   * LOAD POOLS FROM API
+   * Fetches all pools belonging to the current user from the backend
+   *
+   * Flow:
+   * 1. Call GET /api/pool/my-pools
+   * 2. Update poolsSignal with fetched data
+   * 3. Handle errors appropriately
+   *
+   * @returns Observable<Pool[]> - List of pools
+   *
+   * Usage:
+   * this.poolService.loadPools().subscribe({
+   *   next: (pools) => console.log('Loaded pools:', pools),
+   *   error: (error) => console.error('Error loading pools:', error)
+   * });
+   */
+  loadPools(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/pool/my-pools`).pipe(
+      tap(pools => {
+        try {
+          // Safely transform API response to match our Pool interface
+          const transformedPools: Pool[] = (pools || []).map(pool => ({
+            pool_id: pool.pool_id || '',
+            pool_name: pool.pool_name || 'Unknown Pool',
+            region_id: pool.region?.region_id || '',
+            region_name: pool.region?.region_name || 'Unknown',
+            species_id: pool.species?.species_id || '',
+            species_name: pool.species?.species_name || 'Unknown',
+            owner_id: pool.owner_id || '',
+            created_at: pool.created_at || new Date().toISOString()
+          }));
+          // Update signal with fetched data
+          this.poolsSignal.set(transformedPools);
+        } catch (error) {
+          console.error('Error transforming pool data:', error);
+          // Set empty array on transformation error
+          this.poolsSignal.set([]);
+        }
+      }),
+      catchError((error: any) => {
+        console.error('Error fetching pools:', error);
+        // Set empty array on fetch error
+        this.poolsSignal.set([]);
+        // Re-throw to let component handle it
+        return throwError(() => error);
+      })
+    );
+  }
+
   // ==================== CRUD OPERATIONS ====================
 
   /**
    * ADD POOL
-   * Creates a new pool and adds it to the state
+   * Creates a new pool via API call
    *
    * Flow:
-   * 1. Generate new pool_id using current timestamp
-   * 2. Spread existing pools + new pool into new array
-   * 3. Update signal with new array (immutable update)
+   * 1. Call POST /api/pool/ with pool data
+   * 2. Backend generates UUID and creates pool
+   * 3. Add new pool to local signal state
+   * 4. Return observable for component to handle
    *
-   * @param pool - Pool object without pool_id (or with temporary id)
-   *
-   * Current Implementation: Client-side ID generation
-   * TODO: Replace with HTTP POST to backend
+   * @param poolData - Pool object with pool_name, region_name, and species_id
+   * @returns Observable<any> - Created pool response from API
    *
    * Example Usage:
    * this.poolService.addPool({
-   *   pool_name: 'New Pool',
-   *   region_id: 'region-1',
-   *   species_id: 'tilapia',
-   *   owner_id: 'user-1'
+   *   pool_name: 'Hồ Tôm Số 1',
+   *   region_name: 'Miền Nam',
+   *   species_id: 'tom'
+   * }).subscribe({
+   *   next: (newPool) => console.log('Pool created:', newPool),
+   *   error: (error) => console.error('Error creating pool:', error)
    * });
-   *
-   * TODO: Proper implementation with API:
-   * addPool(pool: Omit<Pool, 'pool_id'>): Observable<Pool> {
-   *   return this.http.post<Pool>('/api/pools', pool).pipe(
-   *     tap(newPool => {
-   *       this.poolsSignal.update(pools => [...pools, newPool]);
-   *     })
-   *   );
-   * }
    */
-  addPool(pool: Pool) {
-    this.poolsSignal.update(pools => [
-      ...pools,
-      {
-        ...pool,
-        pool_id: Date.now().toString()  // Generate ID from timestamp
-      }
-    ]);
+  addPool(poolData: { pool_name: string; region_name: string; species_id: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/pool/`, poolData).pipe(
+      tap(newPool => {
+        // Transform API response and add to signal
+        const transformedPool: Pool = {
+          pool_id: newPool.pool_id,
+          pool_name: newPool.pool_name,
+          region_id: newPool.region.region_id,
+          region_name: newPool.region.region_name,
+          species_id: newPool.species.species_id,
+          species_name: newPool.species.species_name,
+          owner_id: newPool.owner_id,
+          created_at: newPool.created_at
+        };
+        // Add to existing pools
+        this.poolsSignal.update(pools => [...pools, transformedPool]);
+      })
+    );
   }
 
   /**
    * DELETE POOL
-   * Removes a pool from the state
+   * Removes a pool via API call
    *
    * Flow:
-   * 1. Filter out the pool with matching pool_id
-   * 2. Update signal with filtered array (immutable update)
+   * 1. Call DELETE /api/pool/{pool_id}
+   * 2. On success, remove from local signal state
+   * 3. Return observable for component to handle
    *
    * @param poolId - ID of the pool to delete
-   *
-   * Current Implementation: In-memory deletion
-   * TODO: Add confirmation dialog before deletion
-   * TODO: Replace with HTTP DELETE to backend
+   * @returns Observable<any> - Delete response from API
    *
    * Example Usage:
-   * this.poolService.deletePool('pool-123');
-   *
-   * TODO: Proper implementation with API:
-   * deletePool(poolId: string): Observable<void> {
-   *   return this.http.delete<void>(`/api/pools/${poolId}`).pipe(
-   *     tap(() => {
-   *       this.poolsSignal.update(pools =>
-   *         pools.filter(p => p.pool_id !== poolId)
-   *       );
-   *     })
-   *   );
-   * }
+   * this.poolService.deletePool('pool-123').subscribe({
+   *   next: () => console.log('Pool deleted successfully'),
+   *   error: (error) => console.error('Error deleting pool:', error)
+   * });
    */
-  deletePool(poolId: string) {
-    this.poolsSignal.update(pools =>
-      pools.filter(p => p.pool_id !== poolId)
+  deletePool(poolId: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/pool/${poolId}`).pipe(
+      tap(() => {
+        // Remove from local state
+        this.poolsSignal.update(pools =>
+          pools.filter(p => p.pool_id !== poolId)
+        );
+      })
     );
   }
 
@@ -299,4 +320,22 @@ export class PoolService {
    * TODO: Add method to get pools by species
    * getPoolsBySpecies(speciesId: string): Pool[]
    */
+  
+  // ==================== ADDITIONAL API METHODS ====================
+  
+  /**
+   * GET ALL SPECIES
+   * Fetches all available aquatic species from the API
+   *
+   * @returns Observable<any[]> - List of species
+   *
+   * Example Usage:
+   * this.poolService.getAllSpecies().subscribe({
+   *   next: (species) => console.log('Species:', species),
+   *   error: (error) => console.error('Error loading species:', error)
+   * });
+   */
+  getAllSpecies(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/pool/species/all`);
+  }
 }

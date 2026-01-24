@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WaterMeasurementService, WaterMeasurement } from '../../services/water-measurement.service';
 
@@ -26,8 +26,7 @@ type MetricType = 'Temperature' | 'pH' | 'Dissolved Oxygen' | 'Ammonia' | 'Turbi
   standalone: true,
   imports: [CommonModule],
   templateUrl: './water-quality-chart.component.html',
-  styleUrl: './water-quality-chart.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrl: './water-quality-chart.component.scss'
 })
 export class WaterQualityChartComponent implements OnInit, OnDestroy {
   /** Input: Pool ID used to fetch measurements specific to this pool */

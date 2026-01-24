@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Header } from '../../../layout/header/header';
 import { Footer } from '../../../layout/footer/footer';
 import { NotificationService } from '../../../services/notification.service';
@@ -25,26 +25,49 @@ export class LoginPage {
   private authService = inject(AuthService);
   private loadingService = inject(LoadingService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   onLogin() {
+    // Validate form
     if (!this.email || !this.password) {
-      this.errorMessage = 'Please fill in all fields';
-      this.notificationService.error('Please fill in all fields', 3000);
+      this.errorMessage = 'Vui lòng điền đầy đủ thông tin';
+      this.notificationService.error(this.errorMessage, 3000);
       return;
     }
+
     this.errorMessage = '';
     this.loading = true;
     this.loadingService.show();
     
-    // Simulate API call
-    setTimeout(() => {
-      this.loading = false;
-      // Call auth service to login
-      this.authService.login(this.email, this.password);
-      this.loadingService.hide();
-      this.notificationService.success('Login successful! Welcome back.', 4000);
-      // Redirect to dashboard
-      this.router.navigate(['/dashboard']);
-    }, 2000);
+    // Gọi API login thật
+    this.authService.login(this.email, this.password).subscribe({
+      next: (response) => {
+        this.loading = false;
+        this.loadingService.hide();
+        this.notificationService.success('Đăng nhập thành công! Chào mừng bạn trở lại.', 4000);
+        
+        // Redirect về trang được yêu cầu trước đó hoặc dashboard
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+        this.router.navigate([returnUrl]);
+      },
+      error: (error) => {
+        this.loading = false;
+        this.loadingService.hide();
+        
+        // Xử lý lỗi từ API
+        let errorMsg = 'Đăng nhập thất bại. Vui lòng thử lại.';
+        
+        if (error.status === 401) {
+          errorMsg = 'Email hoặc mật khẩu không chính xác';
+        } else if (error.status === 0) {
+          errorMsg = 'Không thể kết nối đến server. Vui lòng kiểm tra lại.';
+        } else if (error.error?.detail) {
+          errorMsg = error.error.detail;
+        }
+        
+        this.errorMessage = errorMsg;
+        this.notificationService.error(errorMsg, 4000);
+      }
+    });
   }
 }

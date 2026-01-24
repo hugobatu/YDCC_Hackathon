@@ -9,7 +9,7 @@
       <a href="#" class="nav-link" routerLink="">Home</a>
       <!-- <a href="#" class="nav-link">Features</a> -->
       <a href="#" class="nav-link" routerLink="/dashboard">Dashboard</a>
-      <a href="#" class="nav-link">About</a>
+      <!-- <a href="#" class="nav-link">About</a> -->
     </nav>
 
     <!-- Actions -->
@@ -22,7 +22,7 @@
 
       <!-- Logged In -->
       <ng-container *ngIf="authService.isAuthenticated()">
-        <span class="user-name">Welcome, {{ authService.currentUser()?.name }}</span>
+        <span class="user-name">Welcome, {{ authService.currentUser()?.email }}</span>
         <button class="btn btn-logout" (click)="logout()">Logout</button>
       </ng-container>
     </div>
