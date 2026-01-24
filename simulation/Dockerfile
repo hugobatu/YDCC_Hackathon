@@ -23,6 +23,7 @@ COPY app/ ./app/
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONPATH=/app
 
 # Create a non-root user for security
 RUN useradd -m -u 1000 appuser && \
