@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session, joinedload
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 
 from app.db.connection import get_db
 from app.api.deps import get_current_user
-from app.models.models import User, Pool, Region, AquaticSpecies
+from app.models.models import User, Pool, Region, AquaticSpecies, WaterMeasurement
 from app.schemas.schema_pool import PoolCreate, PoolOut
+from app.schemas.schema_measurement import WaterMeasurementOut
 
 from app.core.email import EmailService
 from app.core.email_template import POOL_CREATED_EMAIL_HTML, POOL_DELETED_EMAIL_HTML
@@ -182,3 +183,37 @@ def delete_pool(
         "pool_id": str(pool.pool_id),
         "pool_name": pool_name_deleted
     }
+
+# 6. get latest measurement for a pool
+@router.get("/{pool_id}/measurements", response_model=Optional[WaterMeasurementOut])
+def get_latest_pool_measurement(
+    pool_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Lấy thông số đo lường mới nhất của hồ nuôi
+    
+    Args:
+        pool_id: UUID của hồ nuôi
+        
+    Returns:
+        Bản ghi đo lường nước mới nhất hoặc null nếu chưa có dữ liệu
+    """
+    # Verify pool ownership
+    pool = db.query(Pool).filter(
+        Pool.pool_id == pool_id,
+        Pool.owner_id == current_user.user_id
+    ).first()
+    
+    if not pool:
+        raise HTTPException(
+            status_code=404,
+            detail="Hồ không tồn tại hoặc bạn không có quyền truy cập"
+        )
+        
+    measurement = db.query(WaterMeasurement).filter(
+        WaterMeasurement.pool_id == pool_id
+    ).order_by(WaterMeasurement.created_at.desc()).first()
+    
+    return measurement
