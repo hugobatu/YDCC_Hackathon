@@ -58,44 +58,47 @@ export class NewsService {
    * Response: NewsItem[]
    */
   getLatestNews(): Observable<NewsItem[]> {
-    // Mock news data for demonstration
-    // Replace this entire array with API response
+    // Mock data simluating the JSON files provided in 'news' folder
+    // Since we cannot read file system directly in browser, we mock the content here
     const mockNews: NewsItem[] = [
       {
-        id: '1',
-        title: 'New Water Quality Regulations for 2026',
-        summary: 'The Department of Fishery has released new guidelines for aquaculture water quality standards, focusing on ammonia limits.',
-        date: new Date('2026-01-15T10:00:00'),
-        source: 'Aquaculture Daily'
+        id: 'weather_24h',
+        title: 'Dự Báo Thời Tiết Đất Liền 24h',
+        summary: 'Thông tin dự báo thời tiết chi tiết trong 24 giờ tới cho khu vực đất liền, bao gồm nhiệt độ, độ ẩm và lượng mưa.',
+        date: new Date(),
+        source: 'weather_land_forecast_24h.json'
       },
       {
-        id: '2',
-        title: 'Seasonal Disease Alert',
-        summary: 'Farmers in the region are advised to watch out for early signs of bacterial infections due to fluctuating temperatures.',
-        date: new Date('2026-01-17T09:30:00'),
-        source: 'Local Fishery Bureau'
+        id: 'hydrology',
+        title: 'Dự Báo Thủy Văn Ngắn Hạn',
+        summary: 'Cập nhật tình hình thủy văn và dự báo ngắn hạn cho các lưu vực sông chính.',
+        date: new Date(),
+        source: ' '
       },
       {
-        id: '3',
-        title: 'Market Price Update: Shrimp',
-        summary: 'Shrimp prices have seen a 5% increase this week driven by high export demand.',
-        date: new Date('2026-01-18T08:00:00'),
-        source: 'Market Watch'
+        id: 'tide',
+        title: 'Dự Báo Thủy Triều',
+        summary: 'Số liệu dự báo mực nước triều trong ngày, phục vụ việc lấy nước và thoát nước cho ao nuôi.',
+        date: new Date(),
+        source: 'tide.json'
+      },
+      {
+        id: 'water_level',
+        title: 'Dự Báo Mực Nước',
+        summary: 'Thông tin quan trắc và dự báo mực nước tại các trạm đo đạc chính.',
+        date: new Date(),
+        source: 'water_level.json'
+      },
+      {
+        id: 'water_flow',
+        title: 'Thông Tin Dòng Chảy',
+        summary: 'Dữ liệu về lưu lượng và tốc độ dòng chảy, hỗ trợ đánh giá khả năng cấp thoát nước.',
+        date: new Date(),
+        source: 'water_flow.json'
       }
     ];
     
-    // Return as Observable to match API pattern
-    // 'of()' creates an Observable that immediately emits the value and completes
     return of(mockNews);
-    
-    // TODO: Replace with actual HTTP call:
-    // return this.http.get<NewsItem[]>(`${this.apiUrl}/news/latest`)
-    //   .pipe(
-    //     catchError(error => {
-    //       console.error('Error fetching news:', error);
-    //       return of([]);  // Return empty array on error
-    //     })
-    //   );
   }
   
   // ==================== FUTURE METHODS ====================

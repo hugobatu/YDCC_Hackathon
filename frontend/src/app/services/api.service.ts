@@ -96,6 +96,11 @@ export class ApiService {
     return this.http.get<any[]>(`${this.apiUrl}/pool/species/all`);
   }
 
+  // GET /api/pool/{pool_id}/measurements
+  getLatestMeasurement(poolId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/pool/${poolId}/measurements`);
+  }
+
   /**
    * PREDICTION & ANALYSIS APIs
    */

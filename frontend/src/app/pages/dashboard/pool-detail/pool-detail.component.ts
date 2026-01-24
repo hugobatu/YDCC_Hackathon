@@ -37,6 +37,7 @@ import { Header } from '../../../layout/header/header';
 import { Footer } from '../../../layout/footer/footer';
 import { PoolService, Pool } from '../../../services/pool.service';
 import { WaterMeasurementService, WaterMeasurement } from '../../../services/water-measurement.service';
+import { ApiService } from '../../../services/api.service';
 import { WaterQualityChartComponent } from '../../../components/water-quality-chart/water-quality-chart.component';
 import { AiConsultantComponent } from '../../../components/ai-consultant/ai-consultant.component';
 import { NewsComponent } from '../../../components/news/news.component';
@@ -97,6 +98,17 @@ export class PoolDetailComponent implements OnInit, OnDestroy {
    * PoolService: Provides pool data and CRUD operations
    * Used to fetch the specific pool by ID
    */
+  // ==================== INJECTED SERVICES ====================
+  
+  /**
+   * ApiService: Provides access to backend APIs
+   */
+  private apiService = inject(ApiService);
+
+  /**
+   * PoolService: Provides pool data and CRUD operations
+   * Used to fetch the specific pool by ID
+   */
   private poolService = inject(PoolService);
   
   /**
@@ -126,131 +138,70 @@ export class PoolDetailComponent implements OnInit, OnDestroy {
 
   // ==================== LIFECYCLE HOOKS ====================
 
-  /**
-   * Angular lifecycle hook - called when component initializes
-   * 
-   * IMPORTANT: Don't put heavy logic directly in ngOnInit
-   * Instead, subscribe to route params and call helper methods
-   *
-   * Flow:
-   * 1. Subscribe to route.params observable
-   * 2. Extract 'id' parameter from URL
-   * 3. Store in poolId property
-   * 4. Call loadPoolData() to fetch pool and measurement data
-   * 5. Set up auto-refresh interval (5 seconds) to sync with chart updates
-   *
-   * Route Parameter Format:
-   * URL: /dashboard/pool-123
-   * params['id'] = 'pool-123'
-   *
-   * Note: Subscription is automatically cleaned up by Angular when component destroys
-   */
   ngOnInit() {
     // Subscribe to route parameters
-    // This observable emits whenever route params change
     this.route.params.subscribe(params => {
-      // Extract pool ID from URL parameter
       this.poolId = params['id'];
-      
-      // Load the pool data using this ID
       this.loadPoolData();
     });
 
-    // Set up auto-refresh interval to update currentMeasurement every 5 seconds
-    // This keeps the "Current Water Quality" section in sync with the chart
+    // Set up auto-refresh interval: updates every 60 seconds (1 minute)
     this.updateInterval = setInterval(() => {
       this.refreshCurrentMeasurement();
-    }, 5000); // 5000ms = 5 seconds (matches chart update interval)
+    }, 60000); // 60000ms = 60 seconds (1 minute)
   }
 
   // ==================== DATA LOADING ====================
 
-  /**
-   * LOAD POOL DATA
-   * Fetches pool information and latest water measurement
-   * 
-   * Flow:
-   * 1. Get pool object from PoolService
-   * 2. Get all measurements for this pool
-   * 3. Extract the latest measurement (last in array)
-   * 4. Redirect to dashboard if pool not found
-   *
-   * Error Handling:
-   * - If pool doesn't exist → redirect to dashboard
-   * - If no measurements exist → currentMeasurement remains null
-   *
-   * TODO: Add error handling for service failures
-   * TODO: Add loading state while data is being fetched
-   * TODO: Replace with Observable stream for reactive updates
-   *
-   * Current Implementation: Synchronous (assumes data is already in service)
-   * Future: Should be async when using HTTP calls:
-   *
-   * private loadPoolData() {
-   *   this.isLoading = true;
-   *   forkJoin({
-   *     pool: this.poolService.getPoolById(this.poolId),
-   *     measurements: this.measurementService.getMeasurementsByPoolId(this.poolId)
-   *   }).subscribe({
-   *     next: ({ pool, measurements }) => {
-   *       this.pool = pool;
-   *       this.currentMeasurement = measurements[measurements.length - 1] || null;
-   *       this.isLoading = false;
-   *     },
-   *     error: (error) => {
-   *       console.error('Error loading pool data:', error);
-   *       this.router.navigate(['/dashboard']);
-   *     }
-   *   });
-   * }
-   */
   private loadPoolData() {
     // Get pool by ID from service
     this.pool = this.poolService.getPool(this.poolId);
     
-    // Get all measurements for this pool
-    const measurements = this.measurementService.getMeasurementsByPoolId(this.poolId);
-    
-    // Get the most recent measurement (last element in array)
-    // Returns null if array is empty
-    this.currentMeasurement = measurements[measurements.length - 1] || null;
-
     // Redirect to dashboard if pool doesn't exist
     if (!this.pool) {
       console.warn(`Pool with ID ${this.poolId} not found. Redirecting to dashboard.`);
       this.router.navigate(['/dashboard']);
+      return;
     }
+
+    // Initial load of measurement data
+    this.refreshCurrentMeasurement();
   }
 
   /**
    * REFRESH CURRENT MEASUREMENT
-   * Updates the currentMeasurement with the latest water quality data
-   * Called every 5 seconds by the auto-refresh interval
-   * 
-   * Flow:
-   * 1. Get all measurements for this pool
-   * 2. Extract the latest measurement (last in array)
-   * 3. Update currentMeasurement property
-   * 4. Manually trigger change detection to ensure UI updates
-   * 
-   * Why manual change detection?
-   * - Prevents the "appearing/disappearing" issue
-   * - Ensures Angular immediately updates the template
-   * - Critical when using OnPush change detection strategy
-   * 
-   * Note: This method is separate from loadPoolData to avoid
-   * unnecessary pool data reloading on every refresh
+   * Fetches latest measurement from API, rounds values, updates store and UI
    */
   private refreshCurrentMeasurement() {
-    // Get all measurements for this pool
-    const measurements = this.measurementService.getMeasurementsByPoolId(this.poolId);
-    
-    // Get the most recent measurement (last element in array)
-    this.currentMeasurement = measurements[measurements.length - 1] || null;
-    
-    // Manually trigger change detection to update UI immediately
-    // This ensures the "Current Water Quality" section stays visible
-    this.cdr.detectChanges();
+    this.apiService.getLatestMeasurement(this.poolId).subscribe({
+      next: (data) => {
+        if (data) {
+          // Round values to 1 decimal place (or 2 for small values)
+          const roundedMeasurement: WaterMeasurement = {
+            measure_id: data.measure_id,
+            pool_id: this.poolId,
+            dissolved_oxygen: parseFloat(data.dissolved_oxygen.toFixed(1)),
+            ph: parseFloat(data.ph.toFixed(1)),
+            amonia: parseFloat(data.amonia.toFixed(2)),
+            turbidity: parseFloat(data.turbidity.toFixed(1)),
+            temperature: parseFloat(data.temperature.toFixed(1)),
+            created_at: data.created_at
+          };
+
+          // Update store (this will automatically update the chart)
+          this.measurementService.addMeasurement(roundedMeasurement);
+
+          // Update local state for current metrics display
+          this.currentMeasurement = roundedMeasurement;
+        } else {
+          this.currentMeasurement = null;
+        }
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error fetching latest measurement:', error);
+      }
+    });
   }
 
   // ==================== NAVIGATION ====================

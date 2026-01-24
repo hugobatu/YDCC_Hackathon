@@ -254,6 +254,36 @@ headers: {
 
 ---
 
+### 2.6 Lấy Chỉ Số Đo Mới Nhất
+
+**Endpoint**: `GET /api/pool/{pool_id}/measurements`
+
+**Mô tả**: Lấy bản ghi đo lường nước mới nhất của hồ.
+
+**Authentication**: ✅ Yêu cầu (Bearer Token)
+
+**Path Parameters**:
+- `pool_id` (UUID): ID của hồ nuôi
+
+**Response** (200 OK):
+```json
+{
+  "measure_id": "890e4567-e89b-12d3-a456-426614174888",
+  "dissolved_oxygen": 6.5,
+  "ph": 7.8,
+  "amonia": 0.05,
+  "turbidity": 25.4,
+  "temperature": 28.5,
+  "created_at": "2026-01-25T02:00:00.000Z"
+}
+```
+*Hoặc `null` nếu chưa có dữ liệu.*
+
+**Errors**:
+- `404 Not Found`: Hồ không tồn tại hoặc bạn không có quyền truy cập
+
+---
+
 ## 3. Prediction & Analysis APIs
 
 ### 3.1 Dự Báo Chất Lượng Nước
@@ -739,6 +769,7 @@ Các giá trị hợp lệ:
 | `POST` | `/api/pool/` | ✅ | Tạo hồ mới |
 | `GET` | `/api/pool/{pool_id}/species` | ✅ | Lấy loài trong hồ |
 | `DELETE` | `/api/pool/{pool_id}` | ✅ | Xóa hồ |
+| `GET` | `/api/pool/{pool_id}/measurements` | ✅ | Lấy chỉ số mới nhất |
 | `POST` | `/api/predict` | ⚠️ | Dự báo chất lượng nước |
 | `POST` | `/api/analyze-with-llm` | ⚠️ | Phân tích AI toàn diện |
 

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WaterMeasurementService, WaterMeasurement } from '../../services/water-measurement.service';
 
@@ -15,11 +15,11 @@ type MetricType = 'Temperature' | 'pH' | 'Dissolved Oxygen' | 'Ammonia' | 'Turbi
  * 
  * Displays real-time water quality metrics in an interactive line chart.
  * Features:
- * - Real-time data updates every 5 seconds without page refresh
- * - Sliding window display: shows only the last N data points (default 12)
+ * - Real-time data updates handled via Angular Signals effects
+ * - Sliding window display: shows only the last N data points
  * - Smooth animations: prevents chart flickering on updates
  * - Metric switching: users can toggle between different water quality metrics
- * - Automatic cleanup: properly destroys chart and intervals on component destroy
+ * - Automatic cleanup: properly destroys chart on component destroy
  */
 @Component({
   selector: 'app-water-quality-chart',
@@ -34,9 +34,6 @@ export class WaterQualityChartComponent implements OnInit, OnDestroy {
   
   /**
    * Input: Maximum number of data points to display on chart
-   * Default: 12 points
-   * Purpose: Maintains chart clarity by preventing overcrowding
-   * As new data arrives, oldest data is removed (sliding window effect)
    */
   @Input() maxDataPoints: number = 12;
 
@@ -45,13 +42,10 @@ export class WaterQualityChartComponent implements OnInit, OnDestroy {
   /** Chart.js instance - holds the rendered chart object */
   private chart: any;
   
-  /** Interval ID for real-time update timer */
-  private updateInterval: any;
+  // Removed updateInterval as we now react to signal changes
   
   /**
    * Stores the filtered measurements to display on chart
-   * Managed as a sliding window: only contains the last 'maxDataPoints' measurements
-   * This prevents data accumulation and keeps the chart responsive
    */
   private displayedMeasurements: WaterMeasurement[] = [];
 
@@ -64,32 +58,29 @@ export class WaterQualityChartComponent implements OnInit, OnDestroy {
   /** Timestamp of last chart update - displayed to user */
   lastUpdated = new Date();
 
+  constructor() {
+    // Reactively update chart when measurements change in the service
+    // PoolDetailComponent handles the actual data fetching (every 60s)
+    effect(() => {
+      // Create a dependency on measurements signal
+      const allMeasurements = this.measurementService.measurements();
+      
+      // Only update if we have poolId (might be undefined initially)
+      if (this.poolId) {
+        this.updateDisplayedMeasurements();
+        this.updateChart();
+        this.lastUpdated = new Date();
+      }
+    });
+  }
+
   /**
    * Angular lifecycle hook: Called after component initialization
-   * 
-   * Initialization sequence:
-   * 1. Load initial measurements into the sliding window
-   * 2. Create the Chart.js chart instance
-   * 3. Set up interval timer for real-time updates
    */
   ngOnInit() {
     this.initializeDisplayedMeasurements();
     this.loadChart();
-    
-    // Set up real-time update interval: triggers every 5 seconds
-    this.updateInterval = setInterval(() => {
-      // 1. Simulate/fetch new measurement data from service
-      this.measurementService.simulateRealTimeUpdate(this.poolId);
-      
-      // 2. Update the sliding window with latest data
-      this.updateDisplayedMeasurements();
-      
-      // 3. Refresh chart with new data
-      this.updateChart();
-      
-      // 4. Update the "Last updated" timestamp
-      this.lastUpdated = new Date();
-    }, 5000); // 5000 milliseconds = 5 seconds
+    // Logic for polling is now handled by parent component (PoolDetailComponent)
   }
 
   /**
@@ -141,9 +132,8 @@ export class WaterQualityChartComponent implements OnInit, OnDestroy {
    * - Multiple chart instances if component is created/destroyed repeatedly
    */
   ngOnDestroy() {
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
-    }
+    // updateInterval is no longer needed/used as we rely on signals
+    
     if (this.chart) {
       this.chart.destroy();
     }
