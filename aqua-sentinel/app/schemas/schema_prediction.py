@@ -23,3 +23,15 @@ class PredictResponse(BaseModel):
     risk_level: str
     details: List[str]
     thresholds: Dict[str, Any]
+
+class LLMAnalysisRequest(BaseModel):
+    """Request cho LLM Analysis Pipeline"""
+    pool_id: str
+    species: str = "tom"
+    include_raw_prompt: bool = False  # Có trả về raw prompt không (cho debug)
+
+class LLMAnalysisResponse(BaseModel):
+    """Response từ LLM Analysis Pipeline"""
+    analysis: Dict[str, Any]  # Kết quả phân tích từ LLM
+    context: Dict[str, Any]   # Context đã gửi cho LLM
+    raw_prompt: str = None    # Prompt gốc (optional, cho debug)
