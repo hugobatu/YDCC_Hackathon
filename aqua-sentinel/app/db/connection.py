@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-USER = os.getenv("user")
-PASSWORD = os.getenv("password")
-HOST = os.getenv("host")
-PORT = os.getenv("port")
-DBNAME = os.getenv("dbname")
+USER = os.getenv("DB_USER") or os.getenv("user")
+PASSWORD = os.getenv("DB_PASSWORD") or os.getenv("password")
+HOST = os.getenv("DB_HOST") or os.getenv("host")
+PORT = os.getenv("DB_PORT") or os.getenv("port")
+DBNAME = os.getenv("DB_NAME") or os.getenv("dbname")
 
 DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
 

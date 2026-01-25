@@ -15,17 +15,16 @@ app = FastAPI(
 )
 
 # Cấu hình CORS cho frontend
-origins = [
-    "http://localhost:4200",
-    # "https://your-production-domain.com",
-]
+# Lấy danh sách origins từ biến môi trường, mặc định cho phép tất cả (*) nếu không thiết lập
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "*")
+origins = allowed_origins_env.split(",") if allowed_origins_env != "*" else ["*"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Danh sách các origin được phép
-    allow_credentials=True,  # Cho phép gửi cookies
-    allow_methods=["*"],     # Cho phép tất cả HTTP methods (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"],     # Cho phép tất cả headers
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(predict.router, prefix="/api")
@@ -41,8 +40,13 @@ from app.services.simulation_service import simulation_service
 
 @app.on_event("startup")
 async def startup_event():
-    # Bắt đầu mô phỏng dữ liệu tự động
-    await simulation_service.start()
+    # Chỉ bật internal simulation nếu biến môi trường ENABLE_INTERNAL_SIMULATION=true
+    # Trên VPS đã có service simulation riêng nên mặc định sẽ tắt để tránh trùng lặp
+    if os.getenv("ENABLE_INTERNAL_SIMULATION", "false").lower() == "true":
+        print("Starting internal simulation service...")
+        await simulation_service.start()
+    else:
+        print("Internal simulation service disabled (ENABLE_INTERNAL_SIMULATION is not true)")
 
 @app.on_event("shutdown")
 async def shutdown_event():
