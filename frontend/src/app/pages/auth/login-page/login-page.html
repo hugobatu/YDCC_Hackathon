@@ -1,11 +1,11 @@
 <div class="login-page">
   <app-header></app-header>
-  
+
   <main class="login-container">
     <div class="login-box">
       <div class="login-header">
-        <h1>Welcome Back</h1>
-        <p>Sign in to your Aqua Sentinel AI account</p>
+        <h1>Chào mừng trở lại</h1>
+        <p>Đăng nhập vào tài khoản Aqua Sentinel AI của bạn</p>
       </div>
 
       <form (ngSubmit)="onLogin()" class="login-form">
@@ -16,61 +16,37 @@
 
         <!-- Email Input -->
         <div class="form-group">
-          <label for="email" class="label">Email Address</label>
-          <input
-            id="email"
-            type="email"
-            [(ngModel)]="email"
-            name="email"
-            class="input-field"
-            placeholder="Enter your email"
-            required
-          />
+          <label for="email" class="label">Địa chỉ Email</label>
+          <input id="email" type="email" [(ngModel)]="email" name="email" class="input-field"
+            placeholder="Nhập địa chỉ email" required />
         </div>
 
         <!-- Password Input -->
         <div class="form-group">
-          <label for="password" class="label">Password</label>
-          <input
-            id="password"
-            type="password"
-            [(ngModel)]="password"
-            name="password"
-            class="input-field"
-            placeholder="Enter your password"
-            required
-          />
+          <label for="password" class="label">Mật khẩu</label>
+          <input id="password" type="password" [(ngModel)]="password" name="password" class="input-field"
+            placeholder="Nhập mật khẩu" required />
         </div>
 
         <!-- Remember Me & Forgot Password -->
         <div class="form-options">
           <div class="remember-me">
-            <input
-              id="rememberMe"
-              type="checkbox"
-              [(ngModel)]="rememberMe"
-              name="rememberMe"
-              class="checkbox"
-            />
-            <label for="rememberMe" class="checkbox-label">Remember me</label>
+            <input id="rememberMe" type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" class="checkbox" />
+            <label for="rememberMe" class="checkbox-label">Ghi nhớ đăng nhập</label>
           </div>
-          <a href="#" class="forgot-password">Forgot password?</a>
+          <a href="#" class="forgot-password">Quên mật khẩu?</a>
         </div>
 
         <!-- Login Button -->
-        <button
-          type="submit"
-          class="login-button"
-          [disabled]="loading"
-        >
-          <span *ngIf="!loading">Sign In</span>
-          <span *ngIf="loading">Signing in...</span>
+        <button type="submit" class="login-button" [disabled]="loading">
+          <span *ngIf="!loading">Đăng nhập</span>
+          <span *ngIf="loading">Đang đăng nhập...</span>
         </button>
       </form>
 
       <!-- Sign Up Link -->
       <div class="signup-link">
-        Don't have an account? <a href="/signup">Sign up here</a>
+        Chưa có tài khoản? <a href="/signup">Đăng ký tại đây</a>
       </div>
     </div>
   </main>

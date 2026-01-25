@@ -21,31 +21,32 @@ export class MetricsSection {
   metrics: Metric[] = [
     {
       key: 'temperature',
-      label: 'Water Temperature',
+      label: 'Nhiệt độ nước',
       unit: '°C',
       icon: 'thermostat',
-      description: 'Tracks optimal temperature levels for aquatic species.',
+      description: 'Theo dõi mức nhiệt độ tối ưu cho các loài thủy sinh.',
     },
     {
       key: 'dissolved_oxygen',
-      label: 'Dissolved Oxygen',
+      label: 'Oxy hòa tan',
       unit: 'mg/L',
       icon: 'air',
-      description: 'Ensures sufficient oxygen levels for aquatic life.',
+      description: 'Đảm bảo mức oxy đầy đủ cho đời sống thủy sinh.',
     },
     {
       key: 'amonia',
-      label: 'Ammonia',
+      label: 'Amoniac',
       unit: 'mg/L',
       icon: 'science',
-      description: 'Detects toxic ammonia concentration in water.',
+      description: 'Phát hiện nồng độ amoniac độc hại trong nước.',
     },
     {
       key: 'ph',
-      label: 'pH Level',
+      label: 'Độ pH',
       unit: '',
       icon: 'water_drop',
-      description: 'Monitors water acidity and alkalinity balance.',
+      description: 'Giám sát sự cân bằng axit và kiềm của nước.',
     },
   ];
+
 }

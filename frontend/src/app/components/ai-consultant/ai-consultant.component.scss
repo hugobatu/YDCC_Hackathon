@@ -173,6 +173,89 @@
   }
 }
 
+// Prediction Section Styles
+.prediction-box {
+  margin-bottom: 20px;
+  background: white;
+  border-radius: 8px;
+  
+  h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.prediction-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.pred-item {
+  background: #f0f4f8;
+  padding: 8px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  
+  .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #718096;
+    text-transform: uppercase;
+  }
+  
+  .value {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a202c;
+  }
+}
+
+.mini-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: #f7fafc;
+  border-radius: 6px;
+  color: #718096;
+  font-size: 12px;
+  font-style: italic;
+  
+  span {
+    position: relative;
+    padding-left: 20px;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 12px;
+      border: 2px solid #cbd5e0;
+      border-top-color: v.$color-primary;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+// Ensure analysis section has some spacing
+.analysis-section {
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 20px;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }

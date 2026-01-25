@@ -7,77 +7,80 @@
     <div class="pool-detail-container">
       <!-- Back Button & Title -->
       <div class="detail-top-section">
-        <button class="btn-back" (click)="goBack()">← Back to Dashboard</button>
+        <button class="btn-back" (click)="goBack()">← Quay lại Bảng điều khiển</button>
         <h1 class="detail-title">{{ pool?.pool_name }}</h1>
-        <p class="detail-subtitle">Pool ID: {{ poolId }}</p>
+        <p class="detail-subtitle">ID Ao: {{ poolId }}</p>
       </div>
 
       <!-- Pool Info Cards -->
       <div class="pool-info-grid">
         <div class="info-card">
-          <span class="info-label">Species</span>
+          <span class="info-label">Loài</span>
           <span class="info-value">{{ pool?.species_name }}</span>
         </div>
         <div class="info-card">
-          <span class="info-label">Region</span>
+          <span class="info-label">Khu vực</span>
           <span class="info-value">{{ pool?.region_name }}</span>
         </div>
         <div class="info-card">
-          <span class="info-label">Created Date</span>
+          <span class="info-label">Ngày tạo</span>
           <span class="info-value">{{ pool?.created_at | date: 'short' }}</span>
         </div>
         <!-- <div class="info-card">
-          <span class="info-label">Last Updated</span>
+          <span class="info-label">Cập nhật lần cuối</span>
           <span class="info-value">{{ pool?.updated_at | date: 'short' }}</span>
         </div> -->
       </div>
 
-      <!-- Main Content Grid -->
       <div class="detail-content-grid">
-        <!-- Chart Section (Left column) -->
-        <div class="chart-section">
-
-          <!-- Current Measurements -->
+        <!-- Left Column: Water Quality -->
+        <div class="left-column">
           <div class="measurements-box">
-            <h3 class="measurements-title">Current Water Quality</h3>
+            <h3 class="measurements-title">Chất lượng nước hiện tại</h3>
             <div class="measurements-grid" *ngIf="currentMeasurement">
               <div class="measurement-item">
-                <span class="measurement-label">Temperature</span>
+                <span class="measurement-label">Nhiệt độ</span>
                 <span class="measurement-value">{{ currentMeasurement.temperature }}°C</span>
               </div>
               <div class="measurement-item">
-                <span class="measurement-label">pH Level</span>
+                <span class="measurement-label">Độ pH</span>
                 <span class="measurement-value">{{ currentMeasurement.ph }}</span>
               </div>
               <div class="measurement-item">
-                <span class="measurement-label">Dissolved Oxygen</span>
+                <span class="measurement-label">Oxy hòa tan</span>
                 <span class="measurement-value">{{ currentMeasurement.dissolved_oxygen }} mg/L</span>
               </div>
               <div class="measurement-item">
-                <span class="measurement-label">Ammonia</span>
+                <span class="measurement-label">Amoniac</span>
                 <span class="measurement-value">{{ currentMeasurement.amonia }} mg/L</span>
               </div>
               <div class="measurement-item">
-                <span class="measurement-label">Turbidity</span>
+                <span class="measurement-label">Độ đục</span>
                 <span class="measurement-value">{{ currentMeasurement.turbidity }} NTU</span>
               </div>
             </div>
           </div>
 
           <app-water-quality-chart [poolId]="poolId"></app-water-quality-chart>
-
         </div>
 
-        <!-- System Control (Middle column) -->
-        <div class="control-section">
-          <app-system-control></app-system-control>
-        </div>
+        <!-- Right Column: AI & System Control -->
+        <div class="right-column">
+          <div class="consultant-section">
+            <app-ai-consultant [poolName]="pool?.pool_name || 'Ao của bạn'" [poolId]="poolId"
+              [species]="pool?.species_id || 'tom'">
+            </app-ai-consultant>
+          </div>
 
-        <!-- AI Consultant & News (Right column) -->
-        <div class="consultant-section">
-          <app-news></app-news>
-          <app-ai-consultant [poolName]="pool?.pool_name || 'Your Pool'"></app-ai-consultant>
+          <div class="control-section">
+            <app-system-control></app-system-control>
+          </div>
         </div>
+      </div>
+
+      <!-- Full Width: Industry News -->
+      <div class="news-section-full">
+        <app-news></app-news>
       </div>
     </div>
   </main>

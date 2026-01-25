@@ -1,28 +1,28 @@
 <div class="pool-card">
   <div class="pool-card-header">
     <h3 class="pool-name">{{ pool.pool_name }}</h3>
-    <button class="btn-delete" (click)="onDelete()" title="Delete pool">
+    <button class="btn-delete" (click)="onDelete()" title="Xóa ao">
       ✕
     </button>
   </div>
 
   <div class="pool-details">
     <div class="detail-item">
-      <span class="label">Species:</span>
+      <span class="label">Loài:</span>
       <span class="value">{{ pool.species_name }}</span>
     </div>
     <div class="detail-item">
-      <span class="label">Region:</span>
+      <span class="label">Khu vực:</span>
       <span class="value">{{ pool.region_name }}</span>
     </div>
     <div class="detail-item">
-      <span class="label">Created:</span>
+      <span class="label">Ngày tạo:</span>
       <span class="value">{{ pool.created_at | date: 'short' }}</span>
     </div>
   </div>
 
   <div class="pool-actions">
-    <button class="btn btn-primary" (click)="onEdit()">Edit</button>
-    <button class="btn btn-secondary" (click)="onViewDetails()">View Details</button>
+    <button class="btn btn-primary" (click)="onEdit()">Chỉnh sửa</button>
+    <button class="btn btn-secondary" (click)="onViewDetails()">Xem chi tiết</button>
   </div>
 </div>

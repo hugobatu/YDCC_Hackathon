@@ -1,40 +1,72 @@
 <div class="ai-consultant-box">
   <div class="consultant-header">
-    <h3>🤖 AI Consultant</h3>
+    <h3>🤖 Tư vấn viên AI</h3>
   </div>
 
   <div class="consultant-content">
 
-    <div *ngIf="!advice && !isLoading" class="initial-state">
-      <p>Need help analyzing your pool status?</p>
-      <button class="btn-action primary" (click)="getAdvice()">Get AI Advice</button>
+    <div *ngIf="!poolId" class="initial-state">
+      <p>Vui lòng chọn một ao để xem phân tích AI.</p>
     </div>
 
-    <div *ngIf="isLoading" class="loading-state">
-      <div class="spinner"></div>
-      <p>Analyzing pool data...</p>
-    </div>
+    <div *ngIf="poolId">
+      <!-- Prediction Section -->
+      <div class="prediction-box">
+        <h4>Dự đoán chỉ số sau 30 phút</h4>
 
-    <div *ngIf="advice" class="advice-state">
-      <div class="advice-text-box">
-        <h4>Analysis Result:</h4>
-        <p>{{ advice }}</p>
-      </div>
+        <div *ngIf="isLoadingPrediction" class="mini-loader">
+          <span>Đang chạy mô hình dự đoán...</span>
+        </div>
 
-      <div class="actions-box" *ngIf="suggestedActions.length > 0">
-        <h4>Recommended Actions:</h4>
-        <div class="action-buttons">
-          <button *ngFor="let item of suggestedActions" class="btn-action secondary" [class.performed]="item.performed"
-            (click)="performAction(item)" [disabled]="item.performed">
-            <span *ngIf="!item.performed">🚀</span>
-            <span *ngIf="item.performed">✅</span>
-            {{ item.label }}
-          </button>
+        <div *ngIf="!isLoadingPrediction && prediction" class="prediction-grid">
+          <div class="pred-item">
+            <span class="label">Nhiệt độ</span>
+            <span class="value">{{ prediction.prediction_next_30min.temperature }}°C</span>
+          </div>
+          <div class="pred-item">
+            <span class="label">pH</span>
+            <span class="value">{{ prediction.prediction_next_30min.ph }}</span>
+          </div>
+          <div class="pred-item">
+            <span class="label">Oxy</span>
+            <span class="value">{{ prediction.prediction_next_30min.dissolved_oxygen }}</span>
+          </div>
+          <div class="pred-item">
+            <span class="label">NH3</span>
+            <span class="value">{{ prediction.prediction_next_30min.ammonia }}</span>
+          </div>
         </div>
       </div>
 
-      <div class="regenerate-box">
-        <button class="btn-link" (click)="getAdvice()">Regenerate Result</button>
+      <!-- Analysis Section -->
+      <div class="analysis-section">
+        <div *ngIf="isLoadingAnalysis" class="loading-state">
+          <div class="spinner"></div>
+          <p>Đang tham vấn chuyên gia AI...</p>
+        </div>
+
+        <div *ngIf="advice && !isLoadingAnalysis" class="advice-state">
+          <div class="advice-text-box">
+            <h4>📋 Đánh giá của AI:</h4>
+            <p>{{ advice }}</p>
+          </div>
+
+          <div class="actions-box" *ngIf="suggestedActions.length > 0">
+            <h4>Hành động khuyến nghị:</h4>
+            <div class="action-buttons">
+              <button *ngFor="let item of suggestedActions" class="btn-action secondary"
+                [class.performed]="item.performed" (click)="performAction(item)" [disabled]="item.performed">
+                <span *ngIf="!item.performed">🚀</span>
+                <span *ngIf="item.performed">✅</span>
+                {{ item.label }}
+              </button>
+            </div>
+          </div>
+
+          <div class="regenerate-box">
+            <button class="btn-link" (click)="getAdvice()">Tạo lại kết quả</button>
+          </div>
+        </div>
       </div>
     </div>
 

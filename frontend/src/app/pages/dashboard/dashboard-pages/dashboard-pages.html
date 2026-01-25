@@ -8,11 +8,11 @@
       <!-- Dashboard Title Section -->
       <div class="dashboard-title-section">
         <div>
-          <h1 class="dashboard-title">My Pools</h1>
-          <p class="dashboard-subtitle">Manage and monitor your aquaculture pools</p>
+          <h1 class="dashboard-title">Ao Nuôi Của Tôi</h1>
+          <p class="dashboard-subtitle">Quản lý và giám sát các ao nuôi của bạn</p>
         </div>
         <button class="btn btn-add-pool" (click)="onAddPool()">
-          + Add New Pool
+          + Thêm Ao Mới
         </button>
       </div>
 
@@ -26,10 +26,10 @@
       <div *ngIf="poolService.pools().length === 0" class="empty-state">
         <div class="empty-state-content">
           <p class="empty-icon">🏊</p>
-          <h2>No Pools Yet</h2>
-          <p>Create your first pool to start monitoring water quality</p>
+          <h2>Chưa Có Ao Nào</h2>
+          <p>Tạo ao đầu tiên của bạn để bắt đầu giám sát chất lượng nước</p>
           <button class="btn btn-add-pool" (click)="onAddPool()">
-            + Create Your First Pool
+            + Tạo Ao Đầu Tiên
           </button>
         </div>
       </div>

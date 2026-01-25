@@ -2,30 +2,26 @@
   <!-- LEFT: TEXT -->
   <div class="hero-content">
     <h1>
-      AI Water Quality Monitoring<br />
-      for the Mekong Delta
+      Giám sát Chất lượng Nước bằng AI<br />
+      cho Đồng bằng Sông Cửu Long
     </h1>
 
     <p>
-      Real-time monitoring and prediction of ammonia, temperature,
-      dissolved oxygen, and pH to optimize aquaculture productivity.
+      Giám sát và dự đoán thời gian thực về amoniac, nhiệt độ, oxy hòa tan và độ pH để tối ưu hóa năng suất nuôi trồng
+      thủy sản.
     </p>
 
     <div class="hero-actions">
-      <button class="btn btn-primary" routerLink="/dashboard">Get Started</button>
-      <button class="btn btn-view-dashboard" routerLink="/dashboard">View Dashboard</button>
+      <button class="btn btn-primary" routerLink="/dashboard">Bắt đầu ngay</button>
+      <button class="btn btn-view-dashboard" routerLink="/dashboard">Xem Bảng điều khiển</button>
     </div>
   </div>
 
   <!-- RIGHT: SLIDER -->
   <div class="hero-slider">
     <div class="slider">
-      <img
-        *ngFor="let img of images; let i = index"
-        [src]="img"
-        [class.active]="i === currentIndex()"
-        alt="Aquaculture"
-      />
+      <img *ngFor="let img of images; let i = index" [src]="img" [class.active]="i === currentIndex()"
+        alt="Aquaculture" />
     </div>
 
     <div class="slider-gradient"></div>

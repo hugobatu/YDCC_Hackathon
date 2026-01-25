@@ -74,45 +74,45 @@ export class SystemControlComponent {
   devices: ControlDevice[] = [
     {
       id: 'water_pump',
-      name: 'Water Pump',
+      name: 'Máy Bơm Nước',
       icon: '💧',
       isActive: false,
-      description: 'Pump water in/out'
+      description: 'Bơm nước vào/ra'
     },
     {
       id: 'aerator',
-      name: 'Aerator',
-      icon: '🌊',
+      name: 'Máy Sục Khí',
+      icon: '💨',
       isActive: true,  // Started by default (oxygen circulation is critical)
-      description: 'Oxygen circulation'
+      description: 'Tuần hoàn oxy'
     },
     {
       id: 'inlet_valve',
-      name: 'Inlet Valve',
+      name: 'Van Cấp Nước',
       icon: '🚰',
       isActive: false,
-      description: 'Water inlet control'
+      description: 'Kiểm soát cấp nước'
     },
     {
       id: 'outlet_valve',
-      name: 'Outlet Valve',
+      name: 'Van Xả Nước',
       icon: '🔓',
       isActive: false,
-      description: 'Water outlet control'
+      description: 'Kiểm soát xả nước'
     },
     {
       id: 'auto_feeder',
-      name: 'Auto Feeder',
+      name: 'Máy Cho Ăn Tự Động',
       icon: '🍽️',
       isActive: true,  // Started by default (scheduled feeding)
-      description: 'Automatic feeding'
+      description: 'Cho ăn tự động'
     },
     {
       id: 'filter_system',
-      name: 'Filter System',
-      icon: '🔄',
+      name: 'Hệ Thống Lọc',
+      icon: '🗑️',
       isActive: true,  // Started by default (water quality maintenance)
-      description: 'Water filtration'
+      description: 'Lọc nước'
     }
   ];
 
@@ -190,7 +190,7 @@ export class SystemControlComponent {
    * Could be replaced with direct property access in template
    */
   getDeviceStatus(device: ControlDevice): string {
-    return device.isActive ? 'ON' : 'OFF';
+    return device.isActive ? 'BẬT' : 'TẮT';
   }
   
   // ==================== FUTURE ENHANCEMENTS ====================

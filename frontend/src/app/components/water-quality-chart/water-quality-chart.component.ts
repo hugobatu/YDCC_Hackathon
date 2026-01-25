@@ -8,7 +8,7 @@ declare var Chart: any;
  * Type definition for available water quality metrics
  * These metrics are displayed in the chart tabs for user selection
  */
-type MetricType = 'Temperature' | 'pH' | 'Dissolved Oxygen' | 'Ammonia' | 'Turbidity';
+type MetricType = 'Nhiệt độ' | 'Độ pH' | 'Oxy hòa tan' | 'Amoniac' | 'Độ đục';
 
 /**
  * WaterQualityChartComponent
@@ -50,10 +50,10 @@ export class WaterQualityChartComponent implements OnInit, OnDestroy {
   private displayedMeasurements: WaterMeasurement[] = [];
 
   /** Available metrics for user to select from */
-  metrics: MetricType[] = ['Temperature', 'pH', 'Dissolved Oxygen', 'Ammonia', 'Turbidity'];
+  metrics: MetricType[] = ['Nhiệt độ', 'Độ pH', 'Oxy hòa tan', 'Amoniac', 'Độ đục'];
   
   /** Currently selected metric to display (default: Temperature) */
-  selectedMetric: MetricType = 'Temperature';
+  selectedMetric: MetricType = 'Nhiệt độ';
   
   /** Timestamp of last chart update - displayed to user */
   lastUpdated = new Date();
@@ -297,33 +297,33 @@ export class WaterQualityChartComponent implements OnInit, OnDestroy {
 
     // Select data and styling based on currently selected metric
     switch (this.selectedMetric) {
-      case 'Temperature':
+      case 'Nhiệt độ':
         data = measurements.map(m => m.temperature);
-        label = 'Temperature (°C)';
+        label = 'Nhiệt độ (°C)';
         borderColor = '#ef4444';
         backgroundColor = 'rgba(239, 68, 68, 0.1)';
         break;
-      case 'pH':
+      case 'Độ pH':
         data = measurements.map(m => m.ph);
-        label = 'pH Level';
+        label = 'Độ pH';
         borderColor = '#3b82f6';
         backgroundColor = 'rgba(59, 130, 246, 0.1)';
         break;
-      case 'Dissolved Oxygen':
+      case 'Oxy hòa tan':
         data = measurements.map(m => m.dissolved_oxygen);
-        label = 'Dissolved Oxygen (mg/L)';
+        label = 'Oxy hòa tan (mg/L)';
         borderColor = '#10b981';
         backgroundColor = 'rgba(16, 185, 129, 0.1)';
         break;
-      case 'Ammonia':
+      case 'Amoniac':
         data = measurements.map(m => m.amonia);
-        label = 'Ammonia (mg/L)';
+        label = 'Amoniac (mg/L)';
         borderColor = '#f59e0b';
         backgroundColor = 'rgba(245, 158, 11, 0.1)';
         break;
-      case 'Turbidity':
+      case 'Độ đục':
         data = measurements.map(m => m.turbidity);
-        label = 'Turbidity (NTU)';
+        label = 'Độ đục (NTU)';
         borderColor = '#8b5cf6';
         backgroundColor = 'rgba(139, 92, 246, 0.1)';
         break;

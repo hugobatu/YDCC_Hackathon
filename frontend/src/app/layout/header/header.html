@@ -6,24 +6,24 @@
 
     <!-- Navigation -->
     <nav class="nav">
-      <a href="#" class="nav-link" routerLink="">Home</a>
-      <!-- <a href="#" class="nav-link">Features</a> -->
-      <a href="#" class="nav-link" routerLink="/dashboard">Dashboard</a>
-      <!-- <a href="#" class="nav-link">About</a> -->
+      <a href="#" class="nav-link" routerLink="">Trang chủ</a>
+      <!-- <a href="#" class="nav-link">Tính năng</a> -->
+      <a href="#" class="nav-link" routerLink="/dashboard">Bảng điều khiển</a>
+      <!-- <a href="#" class="nav-link">Về chúng tôi</a> -->
     </nav>
 
     <!-- Actions -->
     <div class="actions">
       <!-- Not Logged In -->
       <ng-container *ngIf="!authService.isAuthenticated()">
-        <button class="btn btn-login" routerLink="/login">Login</button>
-        <button class="btn btn-signup" routerLink="/signup">Sign Up</button>
+        <button class="btn btn-login" routerLink="/login">Đăng nhập</button>
+        <button class="btn btn-signup" routerLink="/signup">Đăng ký</button>
       </ng-container>
 
       <!-- Logged In -->
       <ng-container *ngIf="authService.isAuthenticated()">
-        <span class="user-name">Welcome, {{ authService.currentUser()?.email }}</span>
-        <button class="btn btn-logout" (click)="logout()">Logout</button>
+        <span class="user-name">Xin chào, {{ authService.currentUser()?.email }}</span>
+        <button class="btn btn-logout" (click)="logout()">Đăng xuất</button>
       </ng-container>
     </div>
   </div>

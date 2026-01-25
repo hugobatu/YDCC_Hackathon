@@ -46,7 +46,7 @@ export class ChartDemoComponent implements AfterViewInit {
           labels: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00'],
           datasets: [
             {
-              label: 'Dissolved Oxygen (mg/L)',
+              label: 'Oxy hòa tan (mg/L)',
               data: [5.2, 5.5, 5.1, 6.0, 6.3, 6.1],
               borderColor: '#2563eb',
               backgroundColor: 'rgba(37,99,235,0.15)',
